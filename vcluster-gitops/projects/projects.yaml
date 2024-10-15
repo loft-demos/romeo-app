@@ -12,7 +12,7 @@ spec:
     user:
       count/virtualclusterinstances: '4'
   allowedClusters:
-    - name: loft-cluster
+    - name: dev-cluster
   allowedTemplates:
     - kind: VirtualClusterTemplate
       group: storage.loft.sh
