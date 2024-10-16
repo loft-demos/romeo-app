@@ -39,17 +39,17 @@ kind: App
 metadata:
   name: kubernetes-gateway-api-crds
 spec:
-  displayName: Kubernetes Gateway API CRDs
+  displayName: Istio Ingress Gateway
   owner:
     team: loft-admins
   recommendedApp:
     - cluster
-  defaultNamespace: istio-system
+  defaultNamespace: istio-ingress
   config:
     chart:
-      name: gateway-api
-      version: 1.1.0
-      repoURL: https://charts.appscode.com/stable/
+      name: gateway
+      version: 1.22.3
+      repoURL: https://istio-release.storage.googleapis.com/charts
 ---
 apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
@@ -143,6 +143,7 @@ spec:
                 labels:
                   app: httpbin
                   version: v1
+                  sidecar.istio.io/inject: "true"
               spec:
                 serviceAccountName: httpbin
                 containers:
@@ -163,6 +164,25 @@ spec:
                     value: /tmp
                   ports:
                   - containerPort: 8080
+          ---
+          apiVersion: networking.istio.io/v1
+          kind: VirtualService
+          metadata:
+            name: httpbin
+          spec:
+            hosts:
+            - "*"
+            gateways:
+            - httpbin-gateway
+            http:
+            - match:
+              - uri:
+                  prefix: /headers
+              route:
+              - destination:
+                  port:
+                    number: 8000
+                  host: httpbin
         pro:
           enabled: true
         helmRelease:
@@ -218,6 +238,23 @@ spec:
           ingress: {}
         spaceTemplate:
           metadata: {}
+          objects: |-
+            apiVersion: networking.istio.io/v1
+            kind: Gateway
+            metadata:
+              name: httpbin-gateway
+            spec:
+              # The selector matches the ingress gateway pod labels.
+              # If you installed Istio using Helm following the standard documentation, this would be "istio=ingress"
+              selector:
+                istio: ingress
+              servers:
+              - port:
+                  number: 80
+                  name: http
+                  protocol: HTTP
+                hosts:
+                - "*"
       parameters:
         - variable: k8sVersion
           label: k8sVersion
