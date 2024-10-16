@@ -211,7 +211,8 @@ spec:
                           apiVersion: v1
 
             networking:
-              fallbackHostCluster: true
+              advanced:
+                fallbackHostCluster: true
 
             controlPlane:
               statefulSet:
