@@ -1,4 +1,4 @@
-apiVersion: management.loft.sh/v1
+taapiVersion: management.loft.sh/v1
 kind: App
 metadata:
   name: istio-base
@@ -167,7 +167,7 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.21.0-alpha.10
+            version: 0.21.0-beta.4
           values: |-
             external:
               platform:
@@ -180,11 +180,11 @@ spec:
               toHost:
                 ingresses:
                   enabled: true
-                customResourceDefinitions:
-                  httproutes.gateway.networking.k8s.io:
+                customResources:
+                  virtualservices.networking.istio.io:
                     enabled: true
                     translate:
-                      - path: spec.rules[*].backendRefs[*].name
+                      - path: spec.http[*].route[*].destination.host
                         reference:
                           kind: Service
                           apiVersion: v1
