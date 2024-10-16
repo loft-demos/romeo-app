@@ -204,7 +204,7 @@ spec:
                 customResources:
                   virtualservices.networking.istio.io:
                     enabled: true
-                    translate:
+                    patches:
                       - path: spec.http[*].route[*].destination.host
                         reference:
                           kind: Service
