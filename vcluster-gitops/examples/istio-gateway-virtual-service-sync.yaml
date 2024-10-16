@@ -1,4 +1,4 @@
-taapiVersion: management.loft.sh/v1
+apiVersion: management.loft.sh/v1
 kind: App
 metadata:
   name: istio-base
