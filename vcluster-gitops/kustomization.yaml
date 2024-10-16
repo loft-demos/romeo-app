@@ -18,5 +18,6 @@ resources:
 - virtual-cluster-templates/kuberay-volcano.yaml
 - virtual-cluster-templates/pull-request-vcluster.yaml
 - argocd/app-of-apps.yaml
+- examples/istio-gateway-virtual-service-sync.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
