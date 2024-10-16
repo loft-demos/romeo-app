@@ -37,7 +37,7 @@ spec:
 apiVersion: management.loft.sh/v1
 kind: App
 metadata:
-  name: kubernetes-gateway-api-crds
+  name: istio-ingress-gateway
 spec:
   displayName: Istio Ingress Gateway
   owner:
@@ -45,6 +45,7 @@ spec:
   recommendedApp:
     - cluster
   defaultNamespace: istio-ingress
+  icon: https://seeklogo.com/images/I/istio-logo-92FF583709-seeklogo.com.png
   config:
     chart:
       name: gateway
@@ -54,11 +55,11 @@ spec:
 apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
 metadata:
-  name: k8s-gateway-api-example
+  name: istio-virtual-service-example
 spec:
-  displayName: Kubernetes Gateway API Example
+  displayName: Istio Virtual Service Example
   description: >-
-    This virtual cluster template deploys a vCluster with generic sync configured to sync `HTTPRoutes` from the vCluster to the host.
+    This virtual cluster template deploys a vCluster with generic sync configured to sync `virtualservices.networking.istio.io` from the vCluster to the host.
   owner:
     team: loft-admins
   template:
