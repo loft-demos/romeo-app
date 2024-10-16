@@ -234,7 +234,7 @@ spec:
                     image:
                       tag: "{{ .Values.k8sVersion }}"
               coredns:
-                embedded: true
+                enabled: true
 
             # Checkout https://vcluster.com/pro/docs/ for more config options
         accessPoint:
