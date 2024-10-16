@@ -37,7 +37,7 @@ spec:
 apiVersion: management.loft.sh/v1
 kind: App
 metadata:
-  name: istio-ingress-gateway
+  name: istio-ingress
 spec:
   displayName: Istio Ingress Gateway
   owner:
