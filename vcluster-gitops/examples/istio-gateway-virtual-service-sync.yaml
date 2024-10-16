@@ -166,7 +166,7 @@ spec:
                   ports:
                   - containerPort: 8080
           ---
-          apiVersion: networking.istio.io/v1
+          apiVersion: networking.istio.io/v1beta1
           kind: VirtualService
           metadata:
             name: httpbin
