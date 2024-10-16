@@ -97,6 +97,204 @@ spec:
                 .Values.loft.virtualClusterName }}-{{
                 .Values.loft.clusterAnnotations.domainPrefix }}.{{
                 .Values.loft.clusterAnnotations.domain }}
+        objects: |-
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: httpbin
+          ---
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: httpbin
+            namespace: httpbin
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: httpbin
+            namespace: httpbin
+            labels:
+              app: httpbin
+              service: httpbin
+          spec:
+            ports:
+            - name: http
+              port: 8000
+              targetPort: 8080
+            selector:
+              app: httpbin
+          ---
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: httpbin
+            namespace: httpbin
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: httpbin
+                version: v1
+            template:
+              metadata:
+                labels:
+                  app: httpbin
+                  version: v1
+                  sidecar.istio.io/inject: "true"
+              spec:
+                serviceAccountName: httpbin
+                containers:
+                - image: docker.io/kong/httpbin:0.1.0
+                  imagePullPolicy: IfNotPresent
+                  name: httpbin
+                  # Same as found in Dockerfile's CMD but using an unprivileged port
+                  command:
+                  - gunicorn
+                  - -b
+                  - "[::]:8080"
+                  - httpbin:app
+                  - -k
+                  - gevent
+                  env:
+                  # Tells pipenv to use a writable directory instead of $HOME
+                  - name: WORKON_HOME
+                    value: /tmp
+                  ports:
+                  - containerPort: 8080
+          ---
+          apiVersion: networking.istio.io/v1beta1
+          kind: VirtualService
+          metadata:
+            name: httpbin
+            namespace: httpbin
+          spec:
+            hosts:
+            - "*"
+            gateways:
+            - httpbin-gateway
+            http:
+            - match:
+              - uri:
+                  prefix: /headers
+              route:
+              - destination:
+                  port:
+                    number: 8000
+                  host: httpbin
+        pro:
+          enabled: true
+        helmRelease:
+          chart:
+            version: 0.21.0-beta.4
+          values: |-
+            external:
+              platform:
+                autoSleep:
+                  afterInactivity: 6000
+                autoDelete:
+                  afterInactivity: 150000
+                  
+            sync:
+              toHost:
+                ingresses:
+                  enabled: true
+                customResources:
+                  virtualservices.networking.istio.io:
+                    enabled: true
+                    patches:
+                      - path: spec.http[*].route[*].destination.host
+                        reference:
+                          kind: Service
+                          apiVersion: v1
+
+            networking:
+              advanced:
+                fallbackHostCluster: true
+            experimental:
+              multiNamespaceMode:
+                enabled: true
+
+            controlPlane:
+              statefulSet:
+                labels:
+                  env: '{{ .Values.env }}'
+                  team: '{{ .Values.loft.project }}'
+              # Use an embedded managed etcd server instead of using the default SQLite backend
+              backingStore:
+                etcd:
+                  embedded:
+                    enabled: true
+              distro:
+                k8s:
+                  apiServer:
+                    image:
+                      tag:  "{{ .Values.k8sVersion }}"
+                  controllerManager:
+                    image:
+                      tag: "{{ .Values.k8sVersion }}"
+              coredns:
+                enabled: true
+
+            # Checkout https://vcluster.com/pro/docs/ for more config options
+        accessPoint:
+          ingress: {}
+        spaceTemplate:
+          metadata: {}
+          objects: |-
+            apiVersion: networking.istio.io/v1
+            kind: Gateway
+            metadata:
+              name: httpbin-gateway
+            spec:
+              # The selector matches the ingress gateway pod labels.
+              # If you installed Istio using Helm following the standard documentation, this would be "istio=ingress"
+              selector:
+                istio: ingress
+              servers:
+              - port:
+                  number: 80
+                  name: http
+                  protocol: HTTP
+                hosts:
+                - "*"
+      parameters:
+        - variable: k8sVersion
+          label: k8sVersion
+          description: Please select Kubernetes version
+          options:
+            - v1.30.2
+            - v1.29.6
+            - v1.28.11
+            - v1.27.9
+            - v1.26.15
+          defaultValue: v1.29.6
+        - variable: env
+          label: Deployment Environment
+          description: >-
+            Environment for deployments for this vCluster used as cluster label
+            for Argo CD ApplicationSet Cluster Generator
+          options:
+            - dev
+            - qa
+            - prod
+          defaultValue: dev
+      version: 1.0.1
+    - template:
+        metadata:
+          annotations:
+            sleepmode.loft.sh/ignore-user-agents: argo*
+        instanceTemplate:
+          metadata:
+            labels:
+              env: '{{ .Values.env }}'
+              team: '{{ .Values.loft.project }}'
+            annotations:
+              loft.sh/custom-links: >-
+                Helm-Dashboard=https://helm-dashboard-{{
+                .Values.loft.virtualClusterName }}-{{
+                .Values.loft.clusterAnnotations.domainPrefix }}.{{
+                .Values.loft.clusterAnnotations.domain }}
         apps:
           - name: helm-dashboard
             namespace: helm-dashboard
