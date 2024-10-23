@@ -161,24 +161,6 @@ spec:
                     value: /tmp
                   ports:
                   - containerPort: 8080
-          ---            
-          apiVersion: networking.istio.io/v1beta1
-          kind: Gateway
-          metadata:
-            name: httpbin-gateway
-            namespace: httpbin
-          spec:
-            # The selector matches the ingress gateway pod labels.
-            # If you installed Istio using Helm following the standard documentation, this would be "istio=ingress"
-            selector:
-              istio: ingress
-            servers:
-            - port:
-                number: 80
-                name: http
-                protocol: HTTP
-              hosts:
-              - "*"
           ---
           apiVersion: networking.istio.io/v1beta1
           kind: VirtualService
@@ -189,7 +171,7 @@ spec:
             hosts:
             - "*"
             gateways:
-            - httpbin-gateway
+            - "{{ .Values.loft.virtualClusterNamespace }}/httpbin-gateway"
             http:
             - match:
               - uri:
@@ -217,15 +199,8 @@ spec:
                 ingresses:
                   enabled: true
                 customResources:
-                  gateways.networking.istio.io:
-                    enabled: true
                   virtualservices.networking.istio.io:
                     enabled: true
-                    patches:
-                      - path: .spec.gateways[*]
-                        reference:
-                          kind: Gateway
-                          apiVersion: networking.istio.io/v1beta1
 
             networking:
               advanced:
@@ -257,6 +232,24 @@ spec:
           ingress: {}
         spaceTemplate:
           metadata: {}
+          objects: |-
+            ---            
+            apiVersion: networking.istio.io/v1beta1
+            kind: Gateway
+            metadata:
+              name: httpbin-gateway
+            spec:
+              # The selector matches the ingress gateway pod labels.
+              # If you installed Istio using Helm following the standard documentation, this would be "istio=ingress"
+              selector:
+                istio: ingress
+              servers:
+              - port:
+                  number: 80
+                  name: http
+                  protocol: HTTP
+                hosts:
+                - "*"
       parameters:
         - variable: k8sVersion
           label: k8sVersion
