@@ -218,7 +218,7 @@ spec:
               toHost:
                 ingresses:
                   enabled: true
-                customResourceDefinitions:
+                customResources:
                   gateways.networking.istio.io:
                     enabled: true
                   virtualservices.networking.istio.io:
