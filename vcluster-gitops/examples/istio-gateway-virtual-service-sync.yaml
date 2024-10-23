@@ -223,7 +223,7 @@ spec:
 
             experimental:
               multiNamespaceMode:
-                enabled: false
+                enabled: true
             
               genericSync:
                 role:
@@ -258,6 +258,9 @@ spec:
                         regex: $NAMESPACE
                         conditions:
                           - notEqual: "."
+                import:
+                  - kind: Secret
+                    apiVersion: v1
 
             controlPlane:
               statefulSet:
