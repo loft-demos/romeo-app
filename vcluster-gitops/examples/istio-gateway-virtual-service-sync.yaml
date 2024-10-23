@@ -141,6 +141,7 @@ spec:
                 labels:
                   app: httpbin
                   version: v1
+                  sidecar.istio.io/inject: "true"
               spec:
                 serviceAccountName: httpbin
                 containers:
