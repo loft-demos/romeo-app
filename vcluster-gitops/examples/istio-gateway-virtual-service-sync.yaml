@@ -201,6 +201,11 @@ spec:
                 customResources:
                   virtualservices.networking.istio.io:
                     enabled: true
+                    patches:
+                      - path: .spec.http[*].route[*].destination.host
+                        reference:
+                          kind: Service
+                          apiVersion: v1
 
             networking:
               advanced:
