@@ -102,8 +102,6 @@ spec:
           kind: Namespace
           metadata:
             name: httpbin
-            labels:
-              istio-injection: enabled
           ---
           apiVersion: v1
           kind: ServiceAccount
@@ -164,7 +162,7 @@ spec:
                   ports:
                   - containerPort: 8080
           ---            
-          apiVersion: networking.istio.io/v1
+          apiVersion: networking.istio.io/v1beta1
           kind: Gateway
           metadata:
             name: httpbin-gateway
@@ -182,7 +180,7 @@ spec:
               hosts:
               - "*"
           ---
-          apiVersion: networking.istio.io/v1
+          apiVersion: networking.istio.io/v1beta1
           kind: VirtualService
           metadata:
             name: httpbin
@@ -205,7 +203,7 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.21.0-beta.4
+            version: 0.21.0-beta.5
           values: |-
             external:
               platform:
@@ -227,7 +225,7 @@ spec:
                       - path: .spec.gateways[*]
                         reference:
                           kind: Gateway
-                          apiVersion: networking.istio.io/v1
+                          apiVersion: networking.istio.io/v1beta1
 
             networking:
               advanced:
