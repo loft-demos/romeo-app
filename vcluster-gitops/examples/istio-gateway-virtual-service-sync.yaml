@@ -285,7 +285,6 @@ spec:
           ingress: {}
         spaceTemplate:
           metadata: {}
-          objects: {}
       parameters:
         - variable: k8sVersion
           label: k8sVersion
