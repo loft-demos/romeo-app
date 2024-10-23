@@ -141,7 +141,6 @@ spec:
                 labels:
                   app: httpbin
                   version: v1
-                  sidecar.istio.io/inject: "true"
               spec:
                 serviceAccountName: httpbin
                 containers:
@@ -231,10 +230,6 @@ spec:
             networking:
               advanced:
                 fallbackHostCluster: true
-
-            experimental:
-              multiNamespaceMode:
-                enabled: true
 
             controlPlane:
               statefulSet:
