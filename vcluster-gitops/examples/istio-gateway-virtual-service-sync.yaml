@@ -161,8 +161,26 @@ spec:
                     value: /tmp
                   ports:
                   - containerPort: 8080
+          ---            
+          apiVersion: networking.istio.io/v1
+          kind: Gateway
+          metadata:
+            name: httpbin-gateway
+            namespace: httpbin
+          spec:
+            # The selector matches the ingress gateway pod labels.
+            # If you installed Istio using Helm following the standard documentation, this would be "istio=ingress"
+            selector:
+              istio: ingress
+            servers:
+            - port:
+                number: 80
+                name: http
+                protocol: HTTP
+              hosts:
+              - "*"
           ---
-          apiVersion: networking.istio.io/v1beta1
+          apiVersion: networking.istio.io/v1
           kind: VirtualService
           metadata:
             name: httpbin
@@ -205,7 +223,7 @@ spec:
 
             experimental:
               multiNamespaceMode:
-                enabled: true
+                enabled: false
             
               genericSync:
                 role:
@@ -220,10 +238,10 @@ spec:
                       resources: ["customresourcedefinitions"]
                       verbs: ["get", "list", "watch"]
                 export:
-                  - apiVersion: networking.istio.io/v1beta1
+                  - apiVersion: networking.istio.io/v1
                     kind: Gateway
             
-                  - apiVersion: networking.istio.io/v1beta1
+                  - apiVersion: networking.istio.io/v1
                     kind: VirtualService
                     patches:
                       - op: rewriteName
@@ -240,9 +258,6 @@ spec:
                         regex: $NAMESPACE
                         conditions:
                           - notEqual: "."
-                import:
-                  - kind: Secret
-                    apiVersion: v1
 
             controlPlane:
               statefulSet:
@@ -270,23 +285,7 @@ spec:
           ingress: {}
         spaceTemplate:
           metadata: {}
-          objects: |-
-            apiVersion: networking.istio.io/v1
-            kind: Gateway
-            metadata:
-              name: httpbin-gateway
-            spec:
-              # The selector matches the ingress gateway pod labels.
-              # If you installed Istio using Helm following the standard documentation, this would be "istio=ingress"
-              selector:
-                istio: ingress
-              servers:
-              - port:
-                  number: 80
-                  name: http
-                  protocol: HTTP
-                hosts:
-                - "*"
+          objects: {}
       parameters:
         - variable: k8sVersion
           label: k8sVersion
