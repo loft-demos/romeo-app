@@ -231,10 +231,6 @@ spec:
                           kind: Service
                           apiVersion: v1
 
-            networking:
-              advanced:
-                fallbackHostCluster: true
-
             controlPlane:
               statefulSet:
                 labels:
