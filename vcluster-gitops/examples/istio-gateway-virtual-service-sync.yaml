@@ -96,6 +96,8 @@ spec:
           kind: Namespace
           metadata:
             name: httpbin
+            labels:
+              istio-injection: enabled
           ---
           apiVersion: v1
           kind: ServiceAccount
@@ -211,7 +213,14 @@ spec:
                 ingresses:
                   enabled: true
 
+            networking:
+              advanced:
+                fallbackHostCluster: true
+
             experimental:
+              multiNamespaceMode:
+                enabled: true
+            
               genericSync:
                 role:
                   extraRules:
@@ -236,15 +245,19 @@ spec:
                         regex: "($NAMESPACE/)?$NAME"
                         conditions:
                           - notEqual: "mesh"
+            
+                  - apiVersion: networking.istio.io/v1beta1
+                    kind: DestinationRule
+                    patches:
                       - op: rewriteName
-                        path: .spec.http[*].route[*].destination.host
-                        regex: &svcHost >
-                          ^$NAME((\.$NAMESPACE)?(\.svc(\.cluster\.local)?){1})?$
-                    reversePatches:
-                      - op: copyFromObject
-                        fromPath: status
-                        path: status
-      
+                        path: .spec.exportTo
+                        regex: $NAMESPACE
+                        conditions:
+                          - notEqual: "."
+                import:
+                  - kind: Secret
+                    apiVersion: v1
+
             controlPlane:
               statefulSet:
                 labels:
