@@ -91,13 +91,6 @@ spec:
             labels:
               env: '{{ .Values.env }}'
               team: '{{ .Values.loft.project }}'
-            annotations:
-              loft.sh/custom-links: >-
-                Helm-Dashboard=https://helm-dashboard-{{
-                .Values.loft.virtualClusterName }}-{{
-                .Values.loft.clusterAnnotations.domainPrefix }}.{{
-                .Values.loft.clusterAnnotations.domain }}
-        objects: |-
           apiVersion: v1
           kind: Namespace
           metadata:
@@ -203,7 +196,7 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.21.0-beta.4
+            version: 0.21.0-beta.5
           values: |-
             external:
               platform:
@@ -216,7 +209,7 @@ spec:
               toHost:
                 ingresses:
                   enabled: true
-                  
+
             experimental:
               genericSync:
                 role:
@@ -236,16 +229,18 @@ spec:
             
                   - apiVersion: networking.istio.io/v1
                     kind: VirtualService
-                    patches: 
+                    patches:
                       - op: rewriteName
                         path: .spec.gateways[*]
                         regex: "($NAMESPACE/)?$NAME"
                         conditions:
                           - notEqual: "mesh"
                       - op: rewriteName
-                        path: .spec.http[*].route[*].destination.host
-                        regex: *svcHost
-                        
+                        path: .spec.gateways[*]
+                        regex: "($NAMESPACE/)?$NAME"
+                        conditions:
+                          - notEqual: "mesh"
+      
             controlPlane:
               statefulSet:
                 labels:
