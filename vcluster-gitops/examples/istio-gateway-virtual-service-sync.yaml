@@ -216,7 +216,8 @@ spec:
               toHost:
                 ingresses:
                   enabled: true
-
+                  
+            experimental:
               genericSync:
                 role:
                   extraRules:
