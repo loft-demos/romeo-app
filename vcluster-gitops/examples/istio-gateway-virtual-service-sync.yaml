@@ -238,7 +238,12 @@ spec:
                           - notEqual: "mesh"
                       - op: rewriteName
                         path: .spec.http[*].route[*].destination.host
-                        regex: *svcHost
+                        regex: &svcHost >
+                          ^$NAME((\.$NAMESPACE)?(\.svc(\.cluster\.local)?){1})?$
+                    reversePatches:
+                      - op: copyFromObject
+                        fromPath: status
+                        path: status
       
             controlPlane:
               statefulSet:
