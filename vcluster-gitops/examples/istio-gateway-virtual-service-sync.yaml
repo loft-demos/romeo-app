@@ -101,104 +101,90 @@ spec:
           apiVersion: v1
           kind: Namespace
           metadata:
-            name: httpbin
+            name: grpc-routing
           ---
           apiVersion: v1
           kind: ServiceAccount
           metadata:
-            name: httpbin
-            namespace: httpbin
+            name: grpc-routing
+            namespace: grpc-routing
           ---
-          apiVersion: v1
-          kind: Service
+          apiVersion: gateway.networking.k8s.io/v1
+          kind: Gateway
           metadata:
-            name: httpbin
-            namespace: httpbin
+            name: grpc-routing-gateway
+            namespace: grpc-routing
             labels:
-              app: httpbin
-              service: httpbin
+              example: grpc-routing
           spec:
-            ports:
-            - name: http
-              port: 8000
-              targetPort: 8080
-            selector:
-              app: httpbin
+            gatewayClassName: istio
+            listeners:
+              - name: http
+                protocol: HTTP
+                port: 80
           ---
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-            name: httpbin
-            namespace: httpbin
+            namespace: grpc-routing
+            labels:
+              app: yages
+              example: grpc-routing
+            name: yages
           spec:
-            replicas: 1
             selector:
               matchLabels:
-                app: httpbin
-                version: v1
+                app: yages
+            replicas: 1
             template:
               metadata:
                 labels:
-                  app: httpbin
-                  version: v1
+                  app: yages
               spec:
-                serviceAccountName: httpbin
+                serviceAccountName: grpc-routing
                 containers:
-                - image: docker.io/kong/httpbin:0.1.0
-                  imagePullPolicy: IfNotPresent
-                  name: httpbin
-                  # Same as found in Dockerfile's CMD but using an unprivileged port
-                  command:
-                  - gunicorn
-                  - -b
-                  - "[::]:8080"
-                  - httpbin:app
-                  - -k
-                  - gevent
-                  env:
-                  # Tells pipenv to use a writable directory instead of $HOME
-                  - name: WORKON_HOME
-                    value: /tmp
-                  ports:
-                  - containerPort: 8080
-          ---         
-          apiVersion: networking.istio.io/v1beta1
-          kind: Gateway
-          metadata:
-            name: httpbin-gateway
-            namespace: httpbin
-          spec:
-            # The selector matches the ingress gateway pod labels.
-            # If you installed Istio using Helm following the standard documentation, this would be "istio=ingress"
-            selector:
-              istio: ingress
-            servers:
-            - port:
-                number: 80
-                name: http
-                protocol: HTTP
-              hosts:
-              - "*"
+                  - name: grpcsrv
+                    image: ghcr.io/projectcontour/yages:v0.1.0
+                    ports:
+                      - containerPort: 9000
+                        protocol: TCP
           ---
-          apiVersion: networking.istio.io/v1beta1
-          kind: VirtualService
+          apiVersion: v1
+          kind: Service
           metadata:
-            name: httpbin
-            namespace: httpbin
+            namespace: grpc-routing
+            labels:
+              app: yages
+              example: grpc-routing
+            name: yages
           spec:
-            hosts:
-            - "*"
-            gateways:
-            - "httpbin-gateway"
-            http:
-            - match:
-              - uri:
-                  prefix: /headers
-              route:
-              - destination:
-                  port:
-                    number: 8000
-                  host: httpbin
+            ports:
+              - name: grpc
+                port: 9000
+                protocol: TCP
+                targetPort: 9000
+            selector:
+              app: yages
+          ---
+          apiVersion: gateway.networking.k8s.io/v1
+          kind: GRPCRoute
+          metadata:
+            namespace: grpc-routing
+            name: yages
+            labels:
+              example: grpc-routing
+          spec:
+            parentRefs:
+              - name: grpc-routing-gateway
+            hostnames:
+              - "grpc-example.com"
+            rules:
+              - backendRefs:
+                  - group: ""
+                    kind: Service
+                    name: yages
+                    port: 9000
+                    weight: 1
         pro:
           enabled: true
         helmRelease:
@@ -217,16 +203,16 @@ spec:
                 ingresses:
                   enabled: true
                 customResources:
-                  gateways.networking.istio.io:
+                  gateways.gateway.networking.k8s.io:
                     enabled: true
-                  virtualservices.networking.istio.io:
+                  grpcroutes.gateway.networking.k8s.io:
                     enabled: true
                     patches:
-                      - path: .spec.gateways[*]
+                      - path: .spec.parentRefs[*].name
                         reference:
                           kind: Gateway
-                          apiVersion: networking.istio.io/v1beta1
-                      - path: .spec.http[*].route[*].destination.host
+                          apiVersion: gateway.networking.k8s.io/v1
+                      - path: .spec.rules[*].backendRefs[*].name
                         reference:
                           kind: Service
                           apiVersion: v1
