@@ -237,10 +237,8 @@ spec:
                         conditions:
                           - notEqual: "mesh"
                       - op: rewriteName
-                        path: .spec.gateways[*]
-                        regex: "($NAMESPACE/)?$NAME"
-                        conditions:
-                          - notEqual: "mesh"
+                        path: .spec.http[*].route[*].destination.host
+                        regex: *svcHost
       
             controlPlane:
               statefulSet:
