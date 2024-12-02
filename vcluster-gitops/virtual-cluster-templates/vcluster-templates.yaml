@@ -51,7 +51,7 @@ spec:
             external:
               platform:
                 autoSleep:
-                  afterInactivity: 120
+                  afterInactivity: 3600
                 autoDelete:
                   afterInactivity: 180000
                   
