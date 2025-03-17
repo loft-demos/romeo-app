@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: global-project
+  namespace: argocd
+spec:
+  destinations:
+    - namespace: '*'
+      server: 'in-cluster'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'

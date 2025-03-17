@@ -1,0 +1,31 @@
+apiVersion: management.loft.sh/v1
+kind: ClusterRoleTemplate
+metadata:
+  name: loft-management-project-user-with-vcluster-logs
+  labels:
+    loft.sh/project-role: 'true'
+spec:
+  displayName: Project User with vCluster Logs Access
+  description: >-
+    Allows the user or team to create, manage and view logs of their vCluster
+    instances.
+  management: true
+  access:
+    - verbs:
+        - get
+      users:
+        - '*'
+  clusterRoleTemplate:
+    metadata: {}
+    rules:
+      - verbs:
+          - get
+          - list
+        apiGroups:
+          - management.loft.sh
+        resources:
+          - virtualclusterinstances/log
+    aggregationRule:
+      clusterRoleSelectors:
+        - matchLabels:
+            demos.loft.sh/aggregate-to-project-user: 'true'
