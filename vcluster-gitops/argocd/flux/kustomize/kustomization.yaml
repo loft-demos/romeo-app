@@ -2,5 +2,3 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - demo-admin-access-key.yaml
-patchesStrategicMerge:
-  - vcluster-instance-storage-patch.yaml
