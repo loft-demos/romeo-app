@@ -1,0 +1,5 @@
+apiVersion: storage.loft.sh/v1
+kind: VirtualClusterInstance
+metadata:
+  annotations:
+    kustomize.toolkit.fluxcd.io/reconcile: "disabled"
