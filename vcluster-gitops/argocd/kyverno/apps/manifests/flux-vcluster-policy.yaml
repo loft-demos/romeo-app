@@ -1,0 +1,21 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-flux-ignore-to-storage-vci
+  namespace: kyverno
+spec:
+  rules:
+    - name: add-ignore-annotation
+      match:
+        resources:
+          kinds:
+            - VirtualClusterInstance.storage.loft.sh
+      preconditions:
+        all:
+          - key: "{{ request.object.metadata.labels.\"kustomize.toolkit.fluxcd.io/name\" }}"
+            operator: Exists
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            annotations:
+              kustomize.toolkit.fluxcd.io/reconcile: "disabled"
