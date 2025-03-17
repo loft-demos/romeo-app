@@ -7,9 +7,12 @@ spec:
   rules:
     - name: add-ignore-annotation
       match:
-        resources:
-          kinds:
-            - VirtualClusterInstance.storage.loft.sh
+        any:
+        - resources:
+            kinds:
+            - storage.loft.sh/*/VirtualClusterInstance
+            operations:
+            - CREATE
       preconditions:
         all:
           - key: "{{ request.object.metadata.labels.\"kustomize.toolkit.fluxcd.io/name\" }}"
