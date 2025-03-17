@@ -26,11 +26,11 @@ spec:
         server: '{{server}}'
       info:
         - name: GitHub Repo
-          value: https://github.com/loft-demos/{REPLACE_REPO_NAME}/
+          value: https://github.com/loft-demos/romeo-app/
       project: 'loft-{{metadata.labels.team}}'
       source:
         path: k8s-manifests/{{metadata.labels.env}}/
-        repoURL: https://github.com/loft-demos/{REPLACE_REPO_NAME}.git
+        repoURL: https://github.com/loft-demos/romeo-app.git
         targetRevision: main
       syncPolicy:
         automated:

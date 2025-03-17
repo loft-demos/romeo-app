@@ -8,7 +8,7 @@ spec:
   targetNamespace: p-auth-core
   sourceRef:
     kind: GitRepository
-    name: {REPLACE_REPO_NAME}
+    name: romeo-app
   path: "./vcluster-gitops/argocd/flux/kustomize"
   prune: true
   timeout: 2m

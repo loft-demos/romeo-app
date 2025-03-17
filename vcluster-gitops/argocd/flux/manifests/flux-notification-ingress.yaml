@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: flux-webhook-{REPLACE_VCLUSTER_NAME}.us.demo.dev
+  - host: flux-webhook-romeo.us.demo.dev
     http:
       paths:
       - pathType: Prefix

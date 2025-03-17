@@ -71,7 +71,7 @@ spec:
           path: ./vcluster-gitops/argocd/flux/flux-deploy-apps
           sourceRef:
             kind: GitRepository
-            name: {REPLACE_REPO_NAME}
+            name: romeo-app
             namespace: p-auth-core
           patches:
             - target:
@@ -103,7 +103,7 @@ spec:
                   value:
                     enabled: true
                     hosts:
-                      - host: podinfo-vcluster-deployed-with-flux-{REPLACE_VCLUSTER_NAME}.us.demo.dev
+                      - host: podinfo-vcluster-deployed-with-flux-romeo.us.demo.dev
                         paths:
                           - path: /
                             pathType: ImplementationSpecific

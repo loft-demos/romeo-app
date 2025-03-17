@@ -5,9 +5,9 @@ metadata:
   namespace: argocd
 data:
   context: |
-    argocdUrl: https://argocd-{REPLACE_VCLUSTER_NAME}.us.demo.dev
+    argocdUrl: https://argocd-romeo.us.demo.dev
   service.webhook.vcluster-platform: |
-    url: https://{REPLACE_VCLUSTER_NAME}.us.demo.dev
+    url: https://romeo.us.demo.dev
     headers:
     - name: Authorization
       value: "Bearer $accessKey"
