@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - vcluster-without-template.yaml
 - demo-admin-access-key.yaml
+- sleepy-vcluster-template.yaml
