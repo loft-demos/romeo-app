@@ -112,7 +112,7 @@ spec:
         eventSources:
           - kind: HelmRelease
             name: '*'
-            namespace: "loft-auth-core-v-romeo-app-flux-vcluster-preview-<< inputs.id >>"
+            namespace: "loft-auth-core-v-romeo-app-preview-<< inputs.id >>"
     # Kustomization wrapper for HelmRelease to allow use of dependsOn
     - apiVersion: kustomize.toolkit.fluxcd.io/v1
       kind: Kustomization
@@ -141,7 +141,7 @@ spec:
               - op: add
                 path: /metadata/namespace
                 value: # based on Auth Core vCluster Platform project pattern for vCluster namespaces
-                  loft-auth-core-v-romeo-app-flux-preview-<< inputs.id >>
+                  loft-auth-core-v-romeo-app-preview-<< inputs.id >>
           - target:
               kind: HelmRelease
             patch: |
@@ -149,7 +149,7 @@ spec:
                 path: /metadata/namespace
                 # the HelmRelease must be in the same namespace as the kubeConfig.secretRef for the vCluster
                 value: 
-                  loft-auth-core-v-romeo-app-flux-preview-<< inputs.id >>
+                  loft-auth-core-v-romeo-app-preview-<< inputs.id >>
               - op: add
                 path: /metadata/annotations
                 # the following annotations are used to populate notifications
