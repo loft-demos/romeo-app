@@ -3,6 +3,7 @@ kind: ClusterPolicy
 metadata:
   name: add-flux-ignore-to-storage-vci
 spec:
+  validationFailureAction: Enforce
   rules:
     - name: add-ignore-annotation
       match:
