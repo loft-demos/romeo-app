@@ -42,7 +42,7 @@ spec:
       kind: GitRepository
       metadata:
         # GitRepository resource for the vCluster instance
-        name: romeo-app-vcluster-<< inputs.id >>
+        name: romeo-app-preview-vcluster-<< inputs.id >>
         # the vCluster Platfrom Auth Core project namespace
         namespace: p-auth-core
       spec:
@@ -56,7 +56,7 @@ spec:
       kind: Kustomization
       metadata:
         # repo name with PR number and part PR label is enough to make the Virtual Cluster Instance name unique
-        name: romeo-app-flux-preview-<< inputs.id >>
+        name: romeo-app-preview-vcluster-<< inputs.id >>
         namespace: p-auth-core
       spec:
         interval: 48h
@@ -64,7 +64,7 @@ spec:
         targetNamespace: p-auth-core
         sourceRef:
           kind: GitRepository
-          name: romeo-app-vcluster-<< inputs.id >>
+          name: romeo-app-preview-vcluster-<< inputs.id >>
         path: "./vcluster-gitops/argocd/flux/pull-request-environments/kustomize"
         prune: true
         timeout: 5m
@@ -82,7 +82,7 @@ spec:
               - op: add
                 path: /metadata/name
                 value:
-                  romeo-app-preview-flux-<< inputs.id >>
+                  romeo-app-preview-vcluster-<< inputs.id >>
     # two GitRepistories are used as the one for the vCluster only needs to be updated per PR
     # this one, for the PR app deployment into the vCluster, needs to be updated for every PR commit
     - apiVersion: source.toolkit.fluxcd.io/v1
@@ -112,7 +112,7 @@ spec:
         eventSources:
           - kind: HelmRelease
             name: '*'
-            namespace: "loft-auth-core-v-romeo-app-preview-<< inputs.id >>"
+            namespace: "loft-auth-core-v-romeo-app-preview-vcluster-<< inputs.id >>"
     # Kustomization wrapper for HelmRelease to allow use of dependsOn
     - apiVersion: kustomize.toolkit.fluxcd.io/v1
       kind: Kustomization
@@ -122,7 +122,7 @@ spec:
       spec:
         dependsOn:
           # this dependsOn allows for vCluster to be up and running before Flux deploys HelmRelease
-          - name: romeo-app-flux-preview-<< inputs.id >>
+          - name: romeo-app-preview-vcluster-<< inputs.id >>
             namespace: p-auth-core
         interval: 48h
         retryInterval: 3m
@@ -141,7 +141,7 @@ spec:
               - op: add
                 path: /metadata/namespace
                 value: # based on Auth Core vCluster Platform project pattern for vCluster namespaces
-                  loft-auth-core-v-romeo-app-preview-<< inputs.id >>
+                  loft-auth-core-v-romeo-app-preview-vcluster-<< inputs.id >>
           - target:
               kind: HelmRelease
             patch: |
@@ -149,12 +149,12 @@ spec:
                 path: /metadata/namespace
                 # the HelmRelease must be in the same namespace as the kubeConfig.secretRef for the vCluster
                 value: 
-                  loft-auth-core-v-romeo-app-preview-<< inputs.id >>
+                  loft-auth-core-v-romeo-app-preview-vcluster-<< inputs.id >>
               - op: add
                 path: /metadata/annotations
                 # the following annotations are used to populate notifications
                 value:
-                  event.toolkit.fluxcd.io/preview-url: "https://podinfo-romeo-app-flux-vcluster-preview-<< inputs.id >>.us.demo.dev"
+                  event.toolkit.fluxcd.io/preview-url: "https://podinfo-romeo-app-flux-preview-<< inputs.id >>.us.demo.dev.us.demo.dev"
                   event.toolkit.fluxcd.io/pr-number: "<< inputs.id >>"
                   event.toolkit.fluxcd.io/sha: "<< inputs.sha >>"
               - op: add
@@ -175,7 +175,7 @@ spec:
                 path: /spec/values
                 value:
                   ui:
-                    message: "deployed to romeo-app-flux-preview-<< inputs.id >> << inputs.sha >>" # use of sha here to simulate dynamic app deployment
+                    message: "deployed to romeo-app-preview-vcluster-<< inputs.id >> << inputs.sha >>" # use of sha here to simulate dynamic app deployment
               - op: add
                 path: /spec/values/ingress
                 value:
