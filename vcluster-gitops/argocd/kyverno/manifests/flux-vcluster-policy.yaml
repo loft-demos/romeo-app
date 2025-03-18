@@ -13,6 +13,7 @@ spec:
                 - storage.loft.sh/*/VirtualClusterInstance
               operations:
                 - CREATE
+                - UPDATE
               selector:
                 matchExpressions:
                   - key: kustomize.toolkit.fluxcd.io/name
@@ -25,5 +26,6 @@ spec:
       mutate:
         patchStrategicMerge:
           metadata:
-            annotations:
-              kustomize.toolkit.fluxcd.io/reconcile: disabled
+            labels:
+              kustomize.toolkit.fluxcd.io/name: null
+              kustomize.toolkit.fluxcd.io/namespace: null
