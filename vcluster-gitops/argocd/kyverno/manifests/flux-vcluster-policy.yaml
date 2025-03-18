@@ -7,7 +7,7 @@ spec:
   rules:
     - name: add-ignore-annotation
       match:
-        any:
+        all:
           - resources:
               kinds:
                 - storage.loft.sh/*/VirtualClusterInstance
