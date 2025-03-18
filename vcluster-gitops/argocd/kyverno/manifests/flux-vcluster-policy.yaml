@@ -17,6 +17,11 @@ spec:
                 matchExpressions:
                   - key: kustomize.toolkit.fluxcd.io/name
                     operator: Exists
+      exclude:
+        any:
+          - resources:
+              kinds:
+                - management.loft.sh/*/VirtualClusterInstance
       mutate:
         patchStrategicMerge:
           metadata:
