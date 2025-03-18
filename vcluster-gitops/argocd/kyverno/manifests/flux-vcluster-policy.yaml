@@ -24,8 +24,6 @@ spec:
               kinds:
                 - management.loft.sh/*/VirtualClusterInstance
       mutate:
-        patchStrategicMerge:
-          metadata:
-            labels:
-              kustomize.toolkit.fluxcd.io/name: null
-              kustomize.toolkit.fluxcd.io/namespace: null
+        patchesJson6902: |-
+          - op: delete
+            path: "/metadata/labels"
