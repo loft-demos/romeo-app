@@ -25,5 +25,6 @@ spec:
                 - management.loft.sh/*/VirtualClusterInstance
       mutate:
         patchesJson6902: |-
-          - op: delete
-            path: "/metadata/labels"
+          - op: add
+            path: "/metadata/labels/kustomize.toolkit.fluxcd.io/name"
+            value: ""
