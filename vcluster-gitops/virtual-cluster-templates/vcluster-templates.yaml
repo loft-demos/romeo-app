@@ -27,7 +27,8 @@ spec:
     spaceTemplate:
       metadata: {}
   versions:
-    - template:
+    - version: 1.0.0
+      template:
         metadata:
           annotations:
             sleepmode.loft.sh/ignore-user-agents: argo*
@@ -101,9 +102,6 @@ spec:
                 image:
                   repository: "loft-demos/vcluster-pro"
                   tag: "0.22.4-k8s.{{ .Values.k8sVersion }}"
-                persistence:
-                  volumeClaim:
-                    storageClass: "standard-rwo"
               # Use an embedded managed etcd server instead of using the default SQLite backend
               backingStore:
                 etcd:
@@ -156,7 +154,6 @@ spec:
             - prod
           defaultValue: dev
           section: Deployment Environment
-      version: 1.0.0
     - template:
         metadata: {}
         instanceTemplate:
