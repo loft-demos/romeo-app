@@ -64,7 +64,9 @@ spec:
   argoCD:
     virtualClusterInstance: argocd
     namespace: argocd
+    enabled: true
     sso:
+      enabled: true
       host: https://argocd-REPLACE_BASE_DOMAIN
       assignedRoles:
         - role:admin
