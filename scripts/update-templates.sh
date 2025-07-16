@@ -102,7 +102,7 @@ while IFS= read -r file; do
     chart_version=$(yq e '.spec.template.helmRelease.chart.version // ""' "$file")
     # Check if .spec.parameters exists before mutating
     has_parameters=$(yq e 'has("spec") and .spec | has("parameters")' "$file")
-    if [[ "$current_chart" != "$LATEST_VCLUSTER" || "$has_parameters" == "true" ]]; then
+    if [[  ( -n "$chart_version" && "$chart_version" != "$LATEST_VCLUSTER" ) || "$has_parameters" == "true" ]]; then
       # Extract the .values key into a clean YAML block
       yq eval '.spec.template.helmRelease.values' "$file" > /tmp/decoded-values.yaml
       if [[ -n "$chart_version" && "$chart_version" != "$LATEST_VCLUSTER" ]]; then

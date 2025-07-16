@@ -16,7 +16,6 @@ spec:
       enabled: true
     helmRelease:
       chart:
-        name: vcluster
         version: 0.26.0
       values: |
         sync:
