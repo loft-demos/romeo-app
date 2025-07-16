@@ -1,82 +1,91 @@
----
 apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
 metadata:
-  name: namespace-sync-template
-  annotations:
-    argocd.argoproj.io/sync-options: Validate=false
+  name: vcluster-pss-admission-config
 spec:
-  displayName: Namespace Sync vCluster Template
-  description: This template deploys a virtual cluster with namespace sync enabled.
+  displayName: Virtual Cluster Template with Pod Security Admission Config
+  description: This template deploys a vCluster with Pod Security Standards configured via the Kubernetes API server Pod Security Admission Controller configuration passed to the vCluster Kubernetes kube-apiserver.
+  owner:
+    team: loft-admins
   template:
-    metadata:
-      annotations:
-        sleepmode.loft.sh/ignore-user-agents: argo*
-      labels:
-        loft.sh/import-argocd: 'true'
+    metadata: {}
     instanceTemplate:
       metadata: {}
     pro:
       enabled: true
     helmRelease:
       chart:
-        name: vcluster
-        version: 0.26.0
+        version: 0.24.0-rc.4
       values: |
-        sync:
-          toHost:
-            ingresses:
-              enabled: true
-            customResources:
-              applications.argoproj.io:
-                enabled: true
-                patches:
-                  - path: spec.destination
-                    expression: "({ name: `loft-{{ .Values.loft.project }}-vcluster-{{ .Values.loft.virtualClusterName }}`, namespace: value?.namespace })"
-            namespaces:
-              enabled: true
-              mappings:
-                byName:
-                  "argo-apps-{{ .Values.loft.project }}-{{ .Values.loft.virtualClusterName }}": "argo-apps-{{ .Values.loft.project }}-{{ .Values.loft.virtualClusterName }}"
-
         controlPlane:
-          backingStore:
-            etcd:
-              embedded:
-                enabled: true
           coredns:
             embedded: true
           distro:
             k8s:
-              image:
-                tag: "{{ .Values.k8sVersion }}"
-        sleepMode:
-          enabled: true
-          autoSleep:
-            afterInactivity: "{{ .Values.sleepAfter }}m"
+              apiServer:
+                # 
+                extraArgs:
+                  - "--admission-control-config-file=/etc/kubernetes/pod-security-admission-config.yaml"
+          statefulSet:
+            persistence:
+              addVolumes:
+                - name: pod-security-admission-config
+                  configMap:
+                    name: pod-security-admission-config
+              addVolumeMounts:
+                - name: pod-security-admission-config
+                  mountPath: /etc/kubernetes
+                  readOnly: true
+        sync:
+          fromHost:
+            runtimeClasses:
+              enabled: true
+          toHost:
+            ingresses:
+              enabled: true
     accessPoint:
       ingress: {}
     spaceTemplate:
       metadata: {}
-  parameters:
-    - variable: sleepAfter
-      label: Sleep After Inactivity (minutes)
-      type: number
-      options:
-        - '30'
-        - '45'
-        - '60'
-        - '120'
-      defaultValue: '45'
-    - variable: k8sVersion
-      label: k8sVersion
-      description: Please select Kubernetes version
-      options:
-        - v1.33.3
-        - v1.32.7
-        - v1.31.11
-        - v1.30.14
-      defaultValue: v1.32.7
+      objects: |-
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: pod-security-admission-config
+        data:
+          pod-security-admission-config.yaml: |-
+            apiVersion: apiserver.config.k8s.io/v1
+            kind: AdmissionConfiguration
+            plugins:
+            - name: PodSecurity
+              configuration:
+                apiVersion: pod-security.admission.config.k8s.io/v1 # see compatibility note
+                kind: PodSecurityConfiguration
+                # Defaults applied when a mode label is not set.
+                #
+                # Level label values must be one of:
+                # - "privileged" (default)
+                # - "baseline"
+                # - "restricted"
+                #
+                # Version label values must be one of:
+                # - "latest" (default) 
+                # - specific version like "v1.32"
+                defaults:
+                  enforce: "baseline"
+                  enforce-version: "latest"
+                  audit: "baseline"
+                  audit-version: "latest"
+                  warn: "baseline"
+                  warn-version: "latest"
+                exemptions:
+                  # Array of authenticated usernames to exempt.
+                  usernames: []
+                  # Array of runtime class names to exempt.
+                  runtimeClasses: 
+                    - vnode
+                  # Array of namespaces to exempt.
+                  namespaces: []
   access:
     - verbs:
         - get
