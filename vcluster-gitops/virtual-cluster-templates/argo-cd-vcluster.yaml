@@ -5,7 +5,8 @@ metadata:
 spec:
   displayName: Argo CD vCluster
   description: >-
-    Creates a vCluster instance with Argo CD for use within a vCluster Platform Project.
+    Creates a vCluster instance with Argo CD for use within a vCluster Platform
+    Project.
   owner:
     team: loft-admins
   template:
@@ -19,7 +20,53 @@ spec:
     apps:
       - name: argocd
         version: 2.14.10
-        parameters: "appValues: |-\n  global:\n    domain: {{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}\n  configs:\n    cm:\n      url: https://{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}\n      create: true\n      application.resourceTrackingMethod: annotation\n    params:\n      \"server.insecure\": true\n      timeout.reconciliation: 0 \n    rbac:\n      policy.csv: |-\n        g, Administration, role:admin\n        g, Sales, role:admin\n        g, Engineering, role:admin\n  server:\n    ingress:\n      enabled: true\n      annotations:\n        nginx.ingress.kubernetes.io/force-ssl-redirect: \"true\"\n        nginx.ingress.kubernetes.io/backend-protocol: \"HTTP\"\n      ingressClassName: \"nginx\"\n      hostname: {{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}\n      tls: true\n    ingressGrpc:\n      enabled: false\n  ## ApplicationSet controller\n  applicationSet:\n    enabled: true\n    logLevel: \"debug\"\n    ingress:\n      enabled: true\n      ingressClassName: \"nginx\"\n      annotations:\n        nginx.ingress.kubernetes.io/force-ssl-redirect: \"true\"\n      hostname: {{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}-appset.{{ .Values.loft.clusterAnnotations.domain }}\n      tls: true\n  notifications:\n    argocdUrl: https://{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}\n    cm:\n      create: true\n    logLevel: \"debug\"\n    secret:\n      labels:\n        loft.sh/project-secret-name: argocd-notifications-secret\n"
+        parameters:
+          appValues: |-
+            global:
+              domain: {{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
+            configs:
+              cm:
+                url: https://{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
+                create: true
+                application.resourceTrackingMethod: annotation
+              params:
+                "server.insecure": true
+                timeout.reconciliation: 0 
+              rbac:
+                policy.csv: |-
+                  g, Administration, role:admin
+                  g, Sales, role:admin
+                  g, Engineering, role:admin
+            server:
+              ingress:
+                enabled: true
+                annotations:
+                  nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+                  nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+                ingressClassName: "nginx"
+                hostname: {{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
+                tls: true
+              ingressGrpc:
+                enabled: false
+            ## ApplicationSet controller
+            applicationSet:
+              enabled: true
+              logLevel: "debug"
+              ingress:
+                enabled: true
+                ingressClassName: "nginx"
+                annotations:
+                  nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+                hostname: {{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}-appset.{{ .Values.loft.clusterAnnotations.domain }}
+                tls: true
+            notifications:
+              argocdUrl: https://{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
+              cm:
+                create: true
+              logLevel: "debug"
+              secret:
+                labels:
+                  loft.sh/project-secret-name: argocd-notifications-secret
       - name: argo-cd-cluster-application-set
     objects: |-
       apiVersion: v1
@@ -41,7 +88,7 @@ spec:
       enabled: true
     helmRelease:
       chart:
-        version: 0.26.0
+        version: 0.24.1
       values: |
         sleepMode:
           enabled: true
