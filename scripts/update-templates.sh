@@ -124,7 +124,7 @@ while IFS= read -r file; do
       fi
 
       yq eval -i '
-        (.spec.template.helmRelease.values = load("/tmp/decoded-values.yaml")
+        .spec.template.helmRelease.values = load("/tmp/decoded-values.yaml")
       ' "$file"
 
       perl -pi -e 's/values:(?! ?\|)/values: |/' "$file"
