@@ -1,0 +1,42 @@
+apiVersion: management.loft.sh/v1
+kind: ClusterRoleTemplate
+metadata:
+  name: loft-management-project-user-with-vcluster-logs
+  labels:
+    loft.sh/project-role: 'true'
+spec:
+  displayName: Project User with vCluster Logs Access
+  description: >-
+    Allows the user or team to view logs of their vCluster
+    instances in addition to standard Project Uesr permissions.
+  management: true
+  access:
+    - verbs:
+        - get
+      users:
+        - '*'
+  clusterRoleTemplate:
+    metadata: {}
+    rules:
+      - verbs:
+          - create
+          - get
+          - list
+        apiGroups:
+          - management.loft.sh
+        resources:
+          - virtualclusterinstances
+          - spaceinstances
+          - projectsecrets
+          - devpodworkspaceinstances
+          - devpodworkspaceinstances/up
+          - devpodworkspaceinstances/ssh
+          - devpodworkspaceinstances/stop
+          - devpodworkspaceinstances/getstatus
+      - verbs:
+          - get
+          - list
+        apiGroups:
+          - management.loft.sh
+        resources:
+          - virtualclusterinstances/log

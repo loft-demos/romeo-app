@@ -1,0 +1,24 @@
+resources:
+- shared-secrets/shared-secrets.yaml
+- project-roles/project-user-with-logs.yaml
+- teams/teams.yaml
+- users/users.yaml
+- apps/argo-cd.yaml
+- apps/helm-dashboard.yaml
+- apps/argo-cd-cluster-application-set.yaml
+- virtual-cluster-templates/default-vcluster-template.yaml
+- virtual-cluster-templates/preview.yaml
+- virtual-cluster-templates/argo-cd-vcluster.yaml
+- virtual-cluster-templates/sleepy-vcluster-template.yaml
+- projects/api-framework.yaml
+- projects/auth-core.yaml
+- projects/default.yaml
+- project-secrets/project-secrets.yaml
+- project-secrets/loft-demo-org-cred.yaml
+- project-secrets/argocd-notifications-secret.yaml
+- virtual-cluster-instances/argo-cd.yaml
+- virtual-cluster-instances/api-framework-qa.yaml
+- apps/argo-cd-pr-application-set.yaml
+- argocd/app-of-apps.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
