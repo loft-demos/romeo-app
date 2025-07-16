@@ -1,27 +1,82 @@
+---
 apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
 metadata:
-  name: vcluster-pss-admission-config
+  name: namespace-sync-template
+  annotations:
+    argocd.argoproj.io/sync-options: Validate=false
 spec:
-  displayName: Virtual Cluster Template with Pod Security Admission Config
-  description: This template deploys a vCluster with Pod Security Standards configured via the Kubernetes API server Pod Security Admission Controller configuration passed to the vCluster Kubernetes kube-apiserver.
-  owner:
-    team: loft-admins
+  displayName: Namespace Sync vCluster Template
+  description: This template deploys a virtual cluster with namespace sync enabled.
   template:
-    metadata: {}
+    metadata:
+      annotations:
+        sleepmode.loft.sh/ignore-user-agents: argo*
+      labels:
+        loft.sh/import-argocd: 'true'
     instanceTemplate:
       metadata: {}
     pro:
       enabled: true
     helmRelease:
       chart:
-        version: 0.26.0
-      values: "controlPlane:\n  coredns:\n    embedded: true\n  distro:\n    k8s:\n      apiServer:\n        # \n        extraArgs:\n          - \"--admission-control-config-file=/etc/kubernetes/pod-security-admission-config.yaml\"\n  statefulSet:\n    persistence:\n      addVolumes:\n        - name: pod-security-admission-config\n          configMap:\n            name: pod-security-admission-config\n      addVolumeMounts:\n        - name: pod-security-admission-config\n          mountPath: /etc/kubernetes\n          readOnly: true\nsync:\n  fromHost:\n    runtimeClasses:\n      enabled: true\n  toHost:\n    ingresses:\n      enabled: true\n"
+        name: vcluster
+        version: 0.25.0
+      values: |
+        sync:
+          toHost:
+            ingresses:
+              enabled: true
+            customResources:
+              applications.argoproj.io:
+                enabled: true
+                patches:
+                  - path: spec.destination
+                    expression: "({ name: `loft-{{ .Values.loft.project }}-vcluster-{{ .Values.loft.virtualClusterName }}`, namespace: value?.namespace })"
+            namespaces:
+              enabled: true
+              mappings:
+                byName:
+                  "argo-apps-{{ .Values.loft.project }}-{{ .Values.loft.virtualClusterName }}": "argo-apps-{{ .Values.loft.project }}-{{ .Values.loft.virtualClusterName }}"
+
+        controlPlane:
+          backingStore:
+            etcd:
+              embedded:
+                enabled: true
+          coredns:
+            embedded: true
+          distro:
+            k8s:
+              image:
+                tag: "{{ .Values.k8sVersion }}"
+        sleepMode:
+          enabled: true
+          autoSleep:
+            afterInactivity: "{{ .Values.sleepAfter }}m"
     accessPoint:
       ingress: {}
     spaceTemplate:
       metadata: {}
-      objects: "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: pod-security-admission-config\ndata:\n  pod-security-admission-config.yaml: |-\n    apiVersion: apiserver.config.k8s.io/v1\n    kind: AdmissionConfiguration\n    plugins:\n    - name: PodSecurity\n      configuration:\n        apiVersion: pod-security.admission.config.k8s.io/v1 # see compatibility note\n        kind: PodSecurityConfiguration\n        # Defaults applied when a mode label is not set.\n        #\n        # Level label values must be one of:\n        # - \"privileged\" (default)\n        # - \"baseline\"\n        # - \"restricted\"\n        #\n        # Version label values must be one of:\n        # - \"latest\" (default) \n        # - specific version like \"v1.32\"\n        defaults:\n          enforce: \"baseline\"\n          enforce-version: \"latest\"\n          audit: \"baseline\"\n          audit-version: \"latest\"\n          warn: \"baseline\"\n          warn-version: \"latest\"\n        exemptions:\n          # Array of authenticated usernames to exempt.\n          usernames: []\n          # Array of runtime class names to exempt.\n          runtimeClasses: \n            - vnode\n          # Array of namespaces to exempt.\n          namespaces: []"
+  parameters:
+    - variable: sleepAfter
+      label: Sleep After Inactivity (minutes)
+      type: number
+      options:
+        - '30'
+        - '45'
+        - '60'
+        - '120'
+      defaultValue: '45'
+    - variable: k8sVersion
+      label: k8sVersion
+      description: Please select Kubernetes version
+      options:
+        - v1.33.2
+        - v1.32.6
+        - v1.31.10
+        - v1.30.14
+      defaultValue: v1.32.6
   access:
     - verbs:
         - get

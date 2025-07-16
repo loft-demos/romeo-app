@@ -100,25 +100,34 @@ while IFS= read -r file; do
 
   else
     chart_version=$(yq e '.spec.template.helmRelease.chart.version // ""' "$file")
-
-    if [[ -n "$chart_version" && "$chart_version" != "$LATEST_VCLUSTER" ]]; then
-      echo "  ↳ Updating chart version from $chart_version to $LATEST_VCLUSTER"
-      yq e -i '.spec.template.helmRelease.chart.version = "'"$LATEST_VCLUSTER"'"' "$file"
-    fi
-    
     # Check if .spec.parameters exists before mutating
     has_parameters=$(yq e 'has("spec") and .spec | has("parameters")' "$file")
-    if [[ "$has_parameters" == "true" ]]; then
-      echo "  ↳ Updating parameters"
-      yq e -i '
-        .spec.parameters = (.spec.parameters // [] | map(select(.variable != "sleepAfter" and .variable != "k8sVersion")))
+    if [[ "$current_chart" != "$LATEST_VCLUSTER" || "$has_parameters" == "true" ]]; then
+      # Extract the .values key into a clean YAML block
+      yq eval '.spec.template.helmRelease.values' "$file" > /tmp/decoded-values.yaml
+      if [[ -n "$chart_version" && "$chart_version" != "$LATEST_VCLUSTER" ]]; then
+        echo "  ↳ Updating chart version from $chart_version to $LATEST_VCLUSTER"
+        yq e -i '.spec.template.helmRelease.chart.version = "'"$LATEST_VCLUSTER"'"' "$file"
+      fi
+      
+      if [[ "$has_parameters" == "true" ]]; then
+        echo "  ↳ Updating parameters"
+        yq e -i '
+          .spec.parameters = (.spec.parameters // [] | map(select(.variable != "sleepAfter" and .variable != "k8sVersion")))
+        ' "$file"
+
+        yq e -i '
+          .spec.parameters += [load("'"$sleep_param_file"'"), load("'"$k8s_param_file"'")]
+        ' "$file"
+      else
+        echo "  ↳ Skipping parameter update (no .spec.parameters block found)"
+      fi
+
+      yq eval -i '
+        (.spec.template.helmRelease.values = load("/tmp/decoded-values.yaml")
       ' "$file"
 
-      yq e -i '
-        .spec.parameters += [load("'"$sleep_param_file"'"), load("'"$k8s_param_file"'")]
-      ' "$file"
-    else
-      echo "  ↳ Skipping parameter update (no .spec.parameters block found)"
+      perl -pi -e 's/values:(?! ?\|)/values: |/' "$file"
     fi
   fi
 done < <(find vcluster-gitops vcluster-use-cases -type f -name "*.yaml") 
