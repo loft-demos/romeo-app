@@ -19,6 +19,16 @@ spec:
     helmRelease:
       chart:
         version: 0.26.0
+      values: |
+        - null
+        - null
+        - null
+        - sync:
+            toHost:
+              ingresses:
+                enabled: true
+
+# Checkout https://vcluster.com/pro/docs/ for more config options
 ---
 apiVersion: management.loft.sh/v1
 kind: App
@@ -41,6 +51,16 @@ spec:
     helmRelease:
       chart:
         version: 0.26.0
+      values: |
+        - null
+        - null
+        - null
+        - sync:
+            toHost:
+              ingresses:
+                enabled: true
+
+# Checkout https://vcluster.com/pro/docs/ for more config options
 ---
 apiVersion: management.loft.sh/v1
 kind: App
@@ -63,6 +83,16 @@ spec:
     helmRelease:
       chart:
         version: 0.26.0
+      values: |
+        - null
+        - null
+        - null
+        - sync:
+            toHost:
+              ingresses:
+                enabled: true
+
+# Checkout https://vcluster.com/pro/docs/ for more config options
 ---
 apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
@@ -82,14 +112,16 @@ spec:
     helmRelease:
       chart:
         version: 0.26.0
-      values: |-
-        sync:
-          toHost:
-            ingresses:
-              enabled: true
-
-        # Checkout https://vcluster.com/pro/docs/ for more config options
+      values: |
+        - null
+        - null
+        - null
+        - sync:
+            toHost:
+              ingresses:
+                enabled: true
     accessPoint:
+    # Checkout https://vcluster.com/pro/docs/ for more config options
       ingress: {}
     spaceTemplate:
       metadata: {}
@@ -196,7 +228,7 @@ spec:
         helmRelease:
           chart:
             version: 0.21.0-beta.5
-          values: "external:\n  platform:\n    autoSleep:\n      afterInactivity: 6000\n    autoDelete:\n      afterInactivity: 150000\n      \nsync:\n  toHost:\n    ingresses:\n      enabled: true\n    customResources:\n      gateways.gateway.networking.k8s.io:\n        enabled: true\n      grpcroutes.gateway.networking.k8s.io:\n        enabled: true\n        patches:\n          - path: .spec.parentRefs[*].name\n            reference:\n              kind: Gateway\n              apiVersion: gateway.networking.k8s.io/v1\n          - path: .spec.rules[*].backendRefs[*].name\n            reference:\n              kind: Service\n              apiVersion: v1\n\ncontrolPlane:\n  statefulSet:\n    labels:\n      env: '{{ .Values.env }}'\n      team: '{{ .Values.loft.project }}'\n  # Use an embedded managed etcd server instead of using the default SQLite backend\n  backingStore:\n    etcd:\n      embedded:\n        enabled: true\n  distro:\n    k8s:\n      apiServer:\n        image:\n          tag:  \"{{ .Values.k8sVersion }}\"\n      controllerManager:\n        image:\n          tag: \"{{ .Values.k8sVersion }}\"\n  coredns:\n    embedded: true\n\n# Checkout https://vcluster.com/pro/docs/ for more config options"
+          values: | "external:\n  platform:\n    autoSleep:\n      afterInactivity: 6000\n    autoDelete:\n      afterInactivity: 150000\n      \nsync:\n  toHost:\n    ingresses:\n      enabled: true\n    customResources:\n      gateways.gateway.networking.k8s.io:\n        enabled: true\n      grpcroutes.gateway.networking.k8s.io:\n        enabled: true\n        patches:\n          - path: .spec.parentRefs[*].name\n            reference:\n              kind: Gateway\n              apiVersion: gateway.networking.k8s.io/v1\n          - path: .spec.rules[*].backendRefs[*].name\n            reference:\n              kind: Service\n              apiVersion: v1\n\ncontrolPlane:\n  statefulSet:\n    labels:\n      env: '{{ .Values.env }}'\n      team: '{{ .Values.loft.project }}'\n  # Use an embedded managed etcd server instead of using the default SQLite backend\n  backingStore:\n    etcd:\n      embedded:\n        enabled: true\n  distro:\n    k8s:\n      apiServer:\n        image:\n          tag:  \"{{ .Values.k8sVersion }}\"\n      controllerManager:\n        image:\n          tag: \"{{ .Values.k8sVersion }}\"\n  coredns:\n    embedded: true\n\n# Checkout https://vcluster.com/pro/docs/ for more config options"
         accessPoint:
           ingress: {}
         spaceTemplate:

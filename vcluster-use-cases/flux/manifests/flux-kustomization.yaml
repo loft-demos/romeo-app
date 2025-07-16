@@ -18,11 +18,15 @@ spec:
     helmRelease:
       chart:
         version: 0.26.0
-      values: |-
-        sync:
-          toHost:
-            ingresses:
-              enabled: true
+      values: |
+        - sync:
+            toHost:
+              ingresses:
+                enabled: true
+        - null
+        - null
+        - null
+        - null
     accessPoint:
       ingress: {}
     spaceTemplate:
@@ -45,7 +49,7 @@ spec:
         helmRelease:
           chart:
             version: 0.23.0
-          values: "exportKubeConfig:\n  context: loft\n  server: https://{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.virtualClusterNamespace }}:443\n  secret:\n    name: 'flux-kubeconfig'\n    \nexternal:\n  platform:\n    autoSleep:\n      afterInactivity: 330\n      autoWakeup:\n        schedule: 11 7-17 * * 1-5\n      timezone: \"America/New_York\"\n    autoDelete:\n      afterInactivity: 1800000\n      \nsync:\n  toHost:\n    ingresses:\n      enabled: true\n\ncontrolPlane:\n  # Use an embedded managed etcd server instead of using the default SQLite backend\n  backingStore:\n    etcd:\n      embedded:\n        enabled: true\n  coredns:\n    embedded: true\n"
+          values: | "exportKubeConfig:\n  context: loft\n  server: https://{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.virtualClusterNamespace }}:443\n  secret:\n    name: 'flux-kubeconfig'\n    \nexternal:\n  platform:\n    autoSleep:\n      afterInactivity: 330\n      autoWakeup:\n        schedule: 11 7-17 * * 1-5\n      timezone: \"America/New_York\"\n    autoDelete:\n      afterInactivity: 1800000\n      \nsync:\n  toHost:\n    ingresses:\n      enabled: true\n\ncontrolPlane:\n  # Use an embedded managed etcd server instead of using the default SQLite backend\n  backingStore:\n    etcd:\n      embedded:\n        enabled: true\n  coredns:\n    embedded: true\n"
         accessPoint:
           ingress: {}
         spaceTemplate:
@@ -143,6 +147,15 @@ spec:
     helmRelease:
       chart:
         version: 0.26.0
+      values: |
+        - sync:
+            toHost:
+              ingresses:
+                enabled: true
+        - null
+        - null
+        - null
+        - null
 ---
 apiVersion: v1
 kind: Secret
@@ -159,6 +172,15 @@ spec:
     helmRelease:
       chart:
         version: 0.26.0
+      values: |
+        - sync:
+            toHost:
+              ingresses:
+                enabled: true
+        - null
+        - null
+        - null
+        - null
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
@@ -176,6 +198,15 @@ spec:
     helmRelease:
       chart:
         version: 0.26.0
+      values: |
+        - sync:
+            toHost:
+              ingresses:
+                enabled: true
+        - null
+        - null
+        - null
+        - null
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -208,3 +239,12 @@ spec:
     helmRelease:
       chart:
         version: 0.26.0
+      values: |
+        - sync:
+            toHost:
+              ingresses:
+                enabled: true
+        - null
+        - null
+        - null
+        - null

@@ -22,7 +22,6 @@ spec:
           toHost:
             ingresses:
               enabled: true
-
         controlPlane:
           backingStore:
             etcd:
