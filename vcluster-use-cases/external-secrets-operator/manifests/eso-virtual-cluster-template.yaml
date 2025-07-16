@@ -113,7 +113,7 @@ spec:
               coredns:
                 embedded: true
         accessPoint:
-        # Checkout https://vcluster.com/pro/docs/ for more config options
+          # Checkout https://vcluster.com/pro/docs/ for more config options
           ingress: {}
         spaceTemplate:
           metadata: {}
