@@ -15,6 +15,10 @@ spec:
       name: base
       version: 1.22.3
       repoURL: https://istio-release.storage.googleapis.com/charts
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
 ---
 apiVersion: management.loft.sh/v1
 kind: App
@@ -33,6 +37,10 @@ spec:
       name: istiod
       version: 1.22.3
       repoURL: https://istio-release.storage.googleapis.com/charts
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
 ---
 apiVersion: management.loft.sh/v1
 kind: App
@@ -51,6 +59,10 @@ spec:
       name: gateway
       version: 1.22.3
       repoURL: https://istio-release.storage.googleapis.com/charts
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
 ---
 apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
@@ -69,7 +81,7 @@ spec:
     pro: {}
     helmRelease:
       chart:
-        version: 0.20.0-beta.15
+        version: 0.26.0
       values: |-
         sync:
           toHost:
@@ -184,55 +196,7 @@ spec:
         helmRelease:
           chart:
             version: 0.21.0-beta.5
-          values: |-
-            external:
-              platform:
-                autoSleep:
-                  afterInactivity: 6000
-                autoDelete:
-                  afterInactivity: 150000
-                  
-            sync:
-              toHost:
-                ingresses:
-                  enabled: true
-                customResources:
-                  gateways.gateway.networking.k8s.io:
-                    enabled: true
-                  grpcroutes.gateway.networking.k8s.io:
-                    enabled: true
-                    patches:
-                      - path: .spec.parentRefs[*].name
-                        reference:
-                          kind: Gateway
-                          apiVersion: gateway.networking.k8s.io/v1
-                      - path: .spec.rules[*].backendRefs[*].name
-                        reference:
-                          kind: Service
-                          apiVersion: v1
-
-            controlPlane:
-              statefulSet:
-                labels:
-                  env: '{{ .Values.env }}'
-                  team: '{{ .Values.loft.project }}'
-              # Use an embedded managed etcd server instead of using the default SQLite backend
-              backingStore:
-                etcd:
-                  embedded:
-                    enabled: true
-              distro:
-                k8s:
-                  apiServer:
-                    image:
-                      tag:  "{{ .Values.k8sVersion }}"
-                  controllerManager:
-                    image:
-                      tag: "{{ .Values.k8sVersion }}"
-              coredns:
-                embedded: true
-
-            # Checkout https://vcluster.com/pro/docs/ for more config options
+          values: "external:\n  platform:\n    autoSleep:\n      afterInactivity: 6000\n    autoDelete:\n      afterInactivity: 150000\n      \nsync:\n  toHost:\n    ingresses:\n      enabled: true\n    customResources:\n      gateways.gateway.networking.k8s.io:\n        enabled: true\n      grpcroutes.gateway.networking.k8s.io:\n        enabled: true\n        patches:\n          - path: .spec.parentRefs[*].name\n            reference:\n              kind: Gateway\n              apiVersion: gateway.networking.k8s.io/v1\n          - path: .spec.rules[*].backendRefs[*].name\n            reference:\n              kind: Service\n              apiVersion: v1\n\ncontrolPlane:\n  statefulSet:\n    labels:\n      env: '{{ .Values.env }}'\n      team: '{{ .Values.loft.project }}'\n  # Use an embedded managed etcd server instead of using the default SQLite backend\n  backingStore:\n    etcd:\n      embedded:\n        enabled: true\n  distro:\n    k8s:\n      apiServer:\n        image:\n          tag:  \"{{ .Values.k8sVersion }}\"\n      controllerManager:\n        image:\n          tag: \"{{ .Values.k8sVersion }}\"\n  coredns:\n    embedded: true\n\n# Checkout https://vcluster.com/pro/docs/ for more config options"
         accessPoint:
           ingress: {}
         spaceTemplate:
@@ -251,8 +215,7 @@ spec:
         - variable: env
           label: Deployment Environment
           description: >-
-            Environment for deployments for this vCluster used as cluster label
-            for Argo CD ApplicationSet Cluster Generator
+            Environment for deployments for this vCluster used as cluster label for Argo CD ApplicationSet Cluster Generator
           options:
             - dev
             - qa

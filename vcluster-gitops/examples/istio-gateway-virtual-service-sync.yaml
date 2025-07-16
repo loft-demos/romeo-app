@@ -15,6 +15,10 @@ spec:
       name: base
       version: 1.22.3
       repoURL: https://istio-release.storage.googleapis.com/charts
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
 ---
 apiVersion: management.loft.sh/v1
 kind: App
@@ -33,6 +37,10 @@ spec:
       name: istiod
       version: 1.22.3
       repoURL: https://istio-release.storage.googleapis.com/charts
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
 ---
 apiVersion: management.loft.sh/v1
 kind: App
@@ -51,6 +59,10 @@ spec:
       name: gateway
       version: 1.22.3
       repoURL: https://istio-release.storage.googleapis.com/charts
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
 ---
 apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
@@ -69,7 +81,7 @@ spec:
     pro: {}
     helmRelease:
       chart:
-        version: 0.20.0-beta.15
+        version: 0.26.0
       values: |-
         sync:
           toHost:
@@ -91,162 +103,13 @@ spec:
             labels:
               env: '{{ .Values.env }}'
               team: '{{ .Values.loft.project }}'
-        objects: |-
-          apiVersion: v1
-          kind: Namespace
-          metadata:
-            name: httpbin
-          ---
-          apiVersion: v1
-          kind: ServiceAccount
-          metadata:
-            name: httpbin
-            namespace: httpbin
-          ---
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: httpbin
-            namespace: httpbin
-            labels:
-              app: httpbin
-              service: httpbin
-          spec:
-            ports:
-            - name: http
-              port: 8000
-              targetPort: 8080
-            selector:
-              app: httpbin
-          ---
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: httpbin
-            namespace: httpbin
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: httpbin
-                version: v1
-            template:
-              metadata:
-                labels:
-                  app: httpbin
-                  version: v1
-              spec:
-                serviceAccountName: httpbin
-                containers:
-                - image: docker.io/kong/httpbin:0.1.0
-                  imagePullPolicy: IfNotPresent
-                  name: httpbin
-                  # Same as found in Dockerfile's CMD but using an unprivileged port
-                  command:
-                  - gunicorn
-                  - -b
-                  - "[::]:8080"
-                  - httpbin:app
-                  - -k
-                  - gevent
-                  env:
-                  # Tells pipenv to use a writable directory instead of $HOME
-                  - name: WORKON_HOME
-                    value: /tmp
-                  ports:
-                  - containerPort: 8080
-          ---         
-          apiVersion: networking.istio.io/v1beta1
-          kind: Gateway
-          metadata:
-            name: httpbin-gateway
-            namespace: httpbin
-          spec:
-            # The selector matches the ingress gateway pod labels.
-            # If you installed Istio using Helm following the standard documentation, this would be "istio=ingress"
-            selector:
-              istio: ingress
-            servers:
-            - port:
-                number: 80
-                name: http
-                protocol: HTTP
-              hosts:
-              - "*"
-          ---
-          apiVersion: networking.istio.io/v1beta1
-          kind: VirtualService
-          metadata:
-            name: httpbin
-            namespace: httpbin
-          spec:
-            hosts:
-            - "*"
-            gateways:
-            - "httpbin-gateway"
-            http:
-            - match:
-              - uri:
-                  prefix: /headers
-              route:
-              - destination:
-                  port:
-                    number: 8000
-                  host: httpbin
+        objects: "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: httpbin\n---\napiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: httpbin\n  namespace: httpbin\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: httpbin\n  namespace: httpbin\n  labels:\n    app: httpbin\n    service: httpbin\nspec:\n  ports:\n  - name: http\n    port: 8000\n    targetPort: 8080\n  selector:\n    app: httpbin\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: httpbin\n  namespace: httpbin\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: httpbin\n      version: v1\n  template:\n    metadata:\n      labels:\n        app: httpbin\n        version: v1\n    spec:\n      serviceAccountName: httpbin\n      containers:\n      - image: docker.io/kong/httpbin:0.1.0\n        imagePullPolicy: IfNotPresent\n        name: httpbin\n        # Same as found in Dockerfile's CMD but using an unprivileged port\n        command:\n        - gunicorn\n        - -b\n        - \"[::]:8080\"\n        - httpbin:app\n        - -k\n        - gevent\n        env:\n        # Tells pipenv to use a writable directory instead of $HOME\n        - name: WORKON_HOME\n          value: /tmp\n        ports:\n        - containerPort: 8080\n---         \napiVersion: networking.istio.io/v1beta1\nkind: Gateway\nmetadata:\n  name: httpbin-gateway\n  namespace: httpbin\nspec:\n  # The selector matches the ingress gateway pod labels.\n  # If you installed Istio using Helm following the standard documentation, this would be \"istio=ingress\"\n  selector:\n    istio: ingress\n  servers:\n  - port:\n      number: 80\n      name: http\n      protocol: HTTP\n    hosts:\n    - \"*\"\n---\napiVersion: networking.istio.io/v1beta1\nkind: VirtualService\nmetadata:\n  name: httpbin\n  namespace: httpbin\nspec:\n  hosts:\n  - \"*\"\n  gateways:\n  - \"httpbin-gateway\"\n  http:\n  - match:\n    - uri:\n        prefix: /headers\n    route:\n    - destination:\n        port:\n          number: 8000\n        host: httpbin"
         pro:
           enabled: true
         helmRelease:
           chart:
             version: 0.21.0-beta.5
-          values: |-
-            external:
-              platform:
-                autoSleep:
-                  afterInactivity: 6000
-                autoDelete:
-                  afterInactivity: 150000
-                  
-            sync:
-              toHost:
-                ingresses:
-                  enabled: true
-                customResources:
-                  gateways.networking.istio.io:
-                    enabled: true
-                  virtualservices.networking.istio.io:
-                    enabled: true
-                    patches:
-                      - path: .spec.gateways[*]
-                        reference:
-                          kind: Gateway
-                          apiVersion: networking.istio.io/v1beta1
-                      - path: .spec.http[*].route[*].destination.host
-                        reference:
-                          kind: Service
-                          apiVersion: v1
-
-            controlPlane:
-              statefulSet:
-                labels:
-                  env: '{{ .Values.env }}'
-                  team: '{{ .Values.loft.project }}'
-              # Use an embedded managed etcd server instead of using the default SQLite backend
-              backingStore:
-                etcd:
-                  embedded:
-                    enabled: true
-              distro:
-                k8s:
-                  apiServer:
-                    image:
-                      tag:  "{{ .Values.k8sVersion }}"
-                  controllerManager:
-                    image:
-                      tag: "{{ .Values.k8sVersion }}"
-              coredns:
-                embedded: true
-
-            # Checkout https://vcluster.com/pro/docs/ for more config options
+          values: "external:\n  platform:\n    autoSleep:\n      afterInactivity: 6000\n    autoDelete:\n      afterInactivity: 150000\n      \nsync:\n  toHost:\n    ingresses:\n      enabled: true\n    customResources:\n      gateways.networking.istio.io:\n        enabled: true\n      virtualservices.networking.istio.io:\n        enabled: true\n        patches:\n          - path: .spec.gateways[*]\n            reference:\n              kind: Gateway\n              apiVersion: networking.istio.io/v1beta1\n          - path: .spec.http[*].route[*].destination.host\n            reference:\n              kind: Service\n              apiVersion: v1\n\ncontrolPlane:\n  statefulSet:\n    labels:\n      env: '{{ .Values.env }}'\n      team: '{{ .Values.loft.project }}'\n  # Use an embedded managed etcd server instead of using the default SQLite backend\n  backingStore:\n    etcd:\n      embedded:\n        enabled: true\n  distro:\n    k8s:\n      apiServer:\n        image:\n          tag:  \"{{ .Values.k8sVersion }}\"\n      controllerManager:\n        image:\n          tag: \"{{ .Values.k8sVersion }}\"\n  coredns:\n    embedded: true\n\n# Checkout https://vcluster.com/pro/docs/ for more config options"
         accessPoint:
           ingress: {}
         spaceTemplate:
@@ -265,8 +128,7 @@ spec:
         - variable: env
           label: Deployment Environment
           description: >-
-            Environment for deployments for this vCluster used as cluster label
-            for Argo CD ApplicationSet Cluster Generator
+            Environment for deployments for this vCluster used as cluster label for Argo CD ApplicationSet Cluster Generator
           options:
             - dev
             - qa

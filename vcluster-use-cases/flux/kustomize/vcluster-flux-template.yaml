@@ -43,14 +43,13 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.23.0
+            version: 0.26.0
           values: |
             exportKubeConfig:
               context: loft
               server: https://{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.virtualClusterNamespace }}:443
               secret:
                 name: 'flux-kubeconfig'
-                
             external:
               platform:
                 autoSleep:
@@ -60,12 +59,10 @@ spec:
                   timezone: "America/New_York"
                 autoDelete:
                   afterInactivity: 1800000
-                  
             sync:
               toHost:
                 ingresses:
                   enabled: true
-
             controlPlane:
               # Use an embedded managed etcd server instead of using the default SQLite backend
               backingStore:
@@ -79,7 +76,7 @@ spec:
         spaceTemplate:
           metadata: {}
           #apps: 
-            #- name: generate-vcluster-kubeconfig
+          #- name: generate-vcluster-kubeconfig
     - version: 0.0.0
       template:
         metadata: {}

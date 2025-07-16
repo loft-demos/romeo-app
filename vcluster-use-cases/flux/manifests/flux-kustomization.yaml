@@ -17,7 +17,7 @@ spec:
     pro: {}
     helmRelease:
       chart:
-        version: 0.23.0
+        version: 0.26.0
       values: |-
         sync:
           toHost:
@@ -45,42 +45,13 @@ spec:
         helmRelease:
           chart:
             version: 0.23.0
-          values: |
-            exportKubeConfig:
-              context: loft
-              server: https://{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.virtualClusterNamespace }}:443
-              secret:
-                name: 'flux-kubeconfig'
-                
-            external:
-              platform:
-                autoSleep:
-                  afterInactivity: 330
-                  autoWakeup:
-                    schedule: 11 7-17 * * 1-5
-                  timezone: "America/New_York"
-                autoDelete:
-                  afterInactivity: 1800000
-                  
-            sync:
-              toHost:
-                ingresses:
-                  enabled: true
-
-            controlPlane:
-              # Use an embedded managed etcd server instead of using the default SQLite backend
-              backingStore:
-                etcd:
-                  embedded:
-                    enabled: true
-              coredns:
-                embedded: true
+          values: "exportKubeConfig:\n  context: loft\n  server: https://{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.virtualClusterNamespace }}:443\n  secret:\n    name: 'flux-kubeconfig'\n    \nexternal:\n  platform:\n    autoSleep:\n      afterInactivity: 330\n      autoWakeup:\n        schedule: 11 7-17 * * 1-5\n      timezone: \"America/New_York\"\n    autoDelete:\n      afterInactivity: 1800000\n      \nsync:\n  toHost:\n    ingresses:\n      enabled: true\n\ncontrolPlane:\n  # Use an embedded managed etcd server instead of using the default SQLite backend\n  backingStore:\n    etcd:\n      embedded:\n        enabled: true\n  coredns:\n    embedded: true\n"
         accessPoint:
           ingress: {}
         spaceTemplate:
           metadata: {}
           #apps: 
-            #- name: generate-vcluster-kubeconfig
+          #- name: generate-vcluster-kubeconfig
     - version: 0.0.0
       template:
         metadata: {}
@@ -168,6 +139,10 @@ spec:
         - loft-admins
   namespacePattern:
     virtualCluster: '{{.Values.loft.project}}-v-{{.Values.loft.name}}'
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
 ---
 apiVersion: v1
 kind: Secret
@@ -179,6 +154,11 @@ metadata:
   labels:
     loft.sh/project-secret-name: demo-admin-access-key
 type: Opaque
+spec:
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
@@ -192,6 +172,10 @@ spec:
   url: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}.git
   ref:
     branch: main
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -220,3 +204,7 @@ spec:
     substituteFrom:
       - kind: Secret
         name: demo-admin-access-key
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0

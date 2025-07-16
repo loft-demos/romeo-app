@@ -72,11 +72,11 @@ spec:
       label: k8sVersion
       description: Please select Kubernetes version
       options:
-        - v1.33.2
-        - v1.32.6
-        - v1.31.10
+        - v1.33.3
+        - v1.32.7
+        - v1.31.11
         - v1.30.14
-      defaultValue: v1.32.6
+      defaultValue: v1.32.7
   access:
     - verbs:
         - get

@@ -5,8 +5,7 @@ metadata:
 spec:
   displayName: Pull Request vCluster
   description: >-
-    Used for ephemeral vCluster instances for GitHub pull requests and includes an
-    Argo CD instance installed in the vCluster.
+    Used for ephemeral vCluster instances for GitHub pull requests and includes an Argo CD instance installed in the vCluster.
   owner:
     team: loft-admins
   template:
@@ -37,84 +36,13 @@ spec:
           metadata:
             annotations:
               loft.sh/custom-links: >-
-                https://argocd-{{ .Values.loft.virtualClusterName }}.{{
-                .Values.loft.clusterAnnotations.domain }}
+                https://argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
         apps:
           # Argo CD vCluster Platform App - installs Argo CD into vCluster with Helm - see ../apps/argo-cd.yaml
           - name: argocd
             version: 2.14.1
             namespace: argocd
-            parameters: |
-              appValues: |
-                global:
-                  # domain needs to be set if you want to use OIDC based SSO
-                  # the .Values.loft.clusterAnnotations.domain is set on the vCluster Platform Cluster resource - see https://github.com/loft-demos/loft-demo-base/blob/main/vcluster-platform-demo-generator/vcluster-platform-gitops/apps/apps.yaml#L404-L405
-                  domain: argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
-                configs:
-                  cm:
-                    create: true
-                    # the cm.url is required to make the Argo CD OIDC SSO work
-                    url: https://argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
-                    application.resourceTrackingMethod: annotation
-                    # OIDC config uses vCluster Platform as an OIDC Provider - see https://www.vcluster.com/docs/platform/how-to/oidc-provider
-                    oidc.config: |
-                       issuer: https://{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}/oidc
-                       clientID: argocd-{{ .Values.loft.virtualClusterName }}
-                       # this same OIDC clientSecret is also added to the vCluster Platform OIDC provider Secret resource
-                       # The Crossplane composition adds that secret here: vcluster-gitops/crossplane/vcluster-pull-request-environment/vcluster-pull-request-environment-composition.yaml#L72-L131
-                       clientSecret: $oidc-secret:clientSecret
-                       name: Loft
-                  params:
-                    "server.insecure": true
-                    timeout.reconciliation: 0  
-                  secret:
-                    createSecret: true
-                  rbac:
-                    policy.csv: |-
-                      g, Administration, role:admin
-                      g, Sales, role:admin
-                      g, Engineering, role:admin
-                server:
-                  ingress:
-                    enabled: true
-                    annotations:
-                      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-                      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-                    ingressClassName: "nginx"
-                    hostname: argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
-                    tls: true
-                  ingressGrpc:
-                    enabled: false
-                controller:
-                  resources:
-                    limits:
-                      cpu: 1000m
-                      memory: 2Gi
-                    requests:
-                      cpu: 250m
-                      memory: 512Mi
-                ## ApplicationSet controller
-                applicationSet:
-                  enabled: true
-                  logLevel: "debug"
-                  ingress:
-                    enabled: true
-                    ingressClassName: "nginx"
-                    annotations:
-                      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-                    hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
-                    tls: true
-                notifications:
-                  argocdUrl: https://argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
-                  cm:
-                    create: true
-                  context:
-                    helloAppUrl: "https://{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}"
-                  logLevel: "debug"
-                  secret:
-                    # label triggers the use of a vCluster Platform Project secret
-                    labels:
-                      loft.sh/project-secret-name: argocd-notifications-secret
+            parameters: "appValues: |\n  global:\n    # domain needs to be set if you want to use OIDC based SSO\n    # the .Values.loft.clusterAnnotations.domain is set on the vCluster Platform Cluster resource - see https://github.com/loft-demos/loft-demo-base/blob/main/vcluster-platform-demo-generator/vcluster-platform-gitops/apps/apps.yaml#L404-L405\n    domain: argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}\n  configs:\n    cm:\n      create: true\n      # the cm.url is required to make the Argo CD OIDC SSO work\n      url: https://argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}\n      application.resourceTrackingMethod: annotation\n      # OIDC config uses vCluster Platform as an OIDC Provider - see https://www.vcluster.com/docs/platform/how-to/oidc-provider\n      oidc.config: |\n         issuer: https://{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}/oidc\n         clientID: argocd-{{ .Values.loft.virtualClusterName }}\n         # this same OIDC clientSecret is also added to the vCluster Platform OIDC provider Secret resource\n         # The Crossplane composition adds that secret here: vcluster-gitops/crossplane/vcluster-pull-request-environment/vcluster-pull-request-environment-composition.yaml#L72-L131\n         clientSecret: $oidc-secret:clientSecret\n         name: Loft\n    params:\n      \"server.insecure\": true\n      timeout.reconciliation: 0  \n    secret:\n      createSecret: true\n    rbac:\n      policy.csv: |-\n        g, Administration, role:admin\n        g, Sales, role:admin\n        g, Engineering, role:admin\n  server:\n    ingress:\n      enabled: true\n      annotations:\n        nginx.ingress.kubernetes.io/force-ssl-redirect: \"true\"\n        nginx.ingress.kubernetes.io/backend-protocol: \"HTTP\"\n      ingressClassName: \"nginx\"\n      hostname: argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}\n      tls: true\n    ingressGrpc:\n      enabled: false\n  controller:\n    resources:\n      limits:\n        cpu: 1000m\n        memory: 2Gi\n      requests:\n        cpu: 250m\n        memory: 512Mi\n  ## ApplicationSet controller\n  applicationSet:\n    enabled: true\n    logLevel: \"debug\"\n    ingress:\n      enabled: true\n      ingressClassName: \"nginx\"\n      annotations:\n        nginx.ingress.kubernetes.io/force-ssl-redirect: \"true\"\n      hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}\n      tls: true\n  notifications:\n    argocdUrl: https://argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}\n    cm:\n      create: true\n    context:\n      helloAppUrl: \"https://{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}\"\n    logLevel: \"debug\"\n    secret:\n      # label triggers the use of a vCluster Platform Project secret\n      labels:\n        loft.sh/project-secret-name: argocd-notifications-secret\n"
           # vCluster Platform App (Bash type) used to create the Argo CD ApplicationSet used to deploy the Pull Request application Helm chart
           - name: argo-cd-pr-application-set
             namespace: argocd
@@ -169,8 +97,8 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.22.3
-          values: |-
+            version: 0.26.0
+          values: |
             external:
               platform:
                 autoSleep:
@@ -181,7 +109,6 @@ spec:
               toHost:
                 ingresses:
                   enabled: true
-
             controlPlane:
               # Use an embedded managed etcd server instead of using the k3s default SQLite backend
               backingStore:
@@ -199,15 +126,6 @@ spec:
         spaceTemplate:
           metadata: {}
       parameters:
-        - variable: k8sVersion
-          label: k8sVersion
-          description: Please select Kubernetes version
-          options:
-            - v1.32.1
-            - v1.31.5
-            - v1.30.9
-            - v1.29.14
-          defaultValue: v1.31.5
         - variable: prnumber
           label: PR Number
           type: string
@@ -216,3 +134,21 @@ spec:
           label: Repo Name
           type: string
           defaultValue: hello-app
+        - variable: sleepAfter
+          label: Sleep After Inactivity (minutes)
+          type: number
+          options:
+            - '30'
+            - '45'
+            - '60'
+            - '120'
+          defaultValue: '45'
+        - variable: k8sVersion
+          label: k8sVersion
+          description: Please select Kubernetes version
+          options:
+            - v1.33.3
+            - v1.32.7
+            - v1.31.11
+            - v1.30.14
+          defaultValue: v1.32.7

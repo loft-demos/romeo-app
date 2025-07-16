@@ -5,8 +5,7 @@ metadata:
 spec:
   displayName: vNode Runtime Class Sync with vNode Launcher
   description: >-
-    This template requires that vNode is installed in the host cluster. The template syncs host cluster runtime classes, to include the vNode `RuntimeClass`, into the vCluster created with this template.
-    Additionally, this templates creates a `vnode-launcher` `pod` into the host namespace of the vCluster that will allow sharing a single vNode runtime across multiple vCluster workload pods.
+    This template requires that vNode is installed in the host cluster. The template syncs host cluster runtime classes, to include the vNode `RuntimeClass`, into the vCluster created with this template. Additionally, this templates creates a `vnode-launcher` `pod` into the host namespace of the vCluster that will allow sharing a single vNode runtime across multiple vCluster workload pods.
   owner:
     team: loft-admins
   template:
@@ -59,7 +58,7 @@ spec:
       enabled: true
     helmRelease:
       chart:
-        version: 0.24.1
+        version: 0.26.0
       values: |
         sync:
           toHost:

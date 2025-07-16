@@ -17,7 +17,7 @@ spec:
     helmRelease:
       chart:
         name: vcluster
-        version: 0.25.1
+        version: 0.26.0
       values: |
         sync:
           toHost:
@@ -57,11 +57,11 @@ spec:
       label: k8sVersion
       description: Please select Kubernetes version
       options:
-        - v1.33.1
-        - v1.32.5
-        - v1.31.9
-        - v1.30.13
-      defaultValue: v1.32.5
+        - v1.33.3
+        - v1.32.7
+        - v1.31.11
+        - v1.30.14
+      defaultValue: v1.32.7
   access:
     - verbs:
         - get

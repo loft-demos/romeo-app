@@ -69,8 +69,8 @@ spec:
                 property: .dockerconfigjson
         helmRelease:
           chart:
-            version: 0.24.1
-          values: |+
+            version: 0.26.0
+          values: |
             sleepMode:
               enabled: true
               autoSleep:
@@ -82,12 +82,10 @@ spec:
               platform:
                 autoDelete:
                   afterInactivity: 1800000
-                  
             sync:
               toHost:
                 ingresses:
                   enabled: true
-
             integrations:
               externalSecrets:
                 enabled: true
@@ -96,7 +94,6 @@ spec:
                     selector:
                       labels:
                         demos.loft.sh/eso-demo-cluster-store: 'true'
-
             controlPlane:
               statefulSet:
                 annotations:
@@ -115,32 +112,39 @@ spec:
                   version: "{{ .Values.k8sVersion }}"
               coredns:
                 embedded: true
-
-            # Checkout https://vcluster.com/pro/docs/ for more config options
         accessPoint:
+        # Checkout https://vcluster.com/pro/docs/ for more config options
           ingress: {}
         spaceTemplate:
           metadata: {}
       parameters:
-        - variable: k8sVersion
-          label: k8sVersion
-          description: Please select Kubernetes version
-          options:
-            - v1.32.2
-            - v1.31.6
-            - v1.30.10
-            - v1.29.14
-          defaultValue: v1.31.6
         - variable: env
           label: Deployment Environment
           description: >-
-            Environment for deployments for this vCluster used as cluster label
-            for Argo CD ApplicationSet Cluster Generator
+            Environment for deployments for this vCluster used as cluster label for Argo CD ApplicationSet Cluster Generator
           options:
             - dev
             - qa
             - prod
           defaultValue: dev
+        - variable: sleepAfter
+          label: Sleep After Inactivity (minutes)
+          type: number
+          options:
+            - '30'
+            - '45'
+            - '60'
+            - '120'
+          defaultValue: '45'
+        - variable: k8sVersion
+          label: k8sVersion
+          description: Please select Kubernetes version
+          options:
+            - v1.33.3
+            - v1.32.7
+            - v1.31.11
+            - v1.30.14
+          defaultValue: v1.32.7
       version: 1.0.0
     - template:
         metadata: {}

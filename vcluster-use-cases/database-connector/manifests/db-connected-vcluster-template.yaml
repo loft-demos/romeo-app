@@ -43,8 +43,8 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.24.1
-          values: |+
+            version: 0.26.0
+          values: |
             sleepMode:
               enabled: true
               autoSleep:
@@ -91,27 +91,34 @@ spec:
         spaceTemplate:
           metadata: {}
       parameters:
-        - variable: k8sVersion
-          label: k8sVersion
-          description: Please select Kubernetes version
-          options:
-            - v1.33.0
-            - v1.32.4
-            - v1.31.8
-            - v1.30.12
-          defaultValue: v1.32.4
-          section: Kubernetes Environment
         - variable: env
           label: Deployment Environment
           description: >-
-            Environment for deployments for this vCluster used as cluster label
-            for Argo CD ApplicationSet Cluster Generator
+            Environment for deployments for this vCluster used as cluster label for Argo CD ApplicationSet Cluster Generator
           options:
             - dev
             - qa
             - prod
           defaultValue: dev
           section: Deployment Environment
+        - variable: sleepAfter
+          label: Sleep After Inactivity (minutes)
+          type: number
+          options:
+            - '30'
+            - '45'
+            - '60'
+            - '120'
+          defaultValue: '45'
+        - variable: k8sVersion
+          label: k8sVersion
+          description: Please select Kubernetes version
+          options:
+            - v1.33.3
+            - v1.32.7
+            - v1.31.11
+            - v1.30.14
+          defaultValue: v1.32.7
   access:
     - verbs:
         - '*'

@@ -122,7 +122,7 @@ spec:
       enabled: true
     helmRelease:
       chart:
-        version: 0.24.1
+        version: 0.26.0
       values: |
         sync:
           toHost:
@@ -147,3 +147,21 @@ spec:
         The value for the kubernetes.io/hostname node selector for both demo pods to be scheduled.
       required: true
       defaultValue: "kind-control-plane"
+    - variable: sleepAfter
+      label: Sleep After Inactivity (minutes)
+      type: number
+      options:
+        - '30'
+        - '45'
+        - '60'
+        - '120'
+      defaultValue: '45'
+    - variable: k8sVersion
+      label: k8sVersion
+      description: Please select Kubernetes version
+      options:
+        - v1.33.3
+        - v1.32.7
+        - v1.31.11
+        - v1.30.14
+      defaultValue: v1.32.7
