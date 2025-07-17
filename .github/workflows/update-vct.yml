@@ -36,7 +36,7 @@ jobs:
         id: commit_push_changes
         run: |
           git status
-          git add u
+          git add -u
 
           echo "Git diff --cached output:"
           git diff --cached
