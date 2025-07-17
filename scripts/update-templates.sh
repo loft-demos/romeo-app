@@ -27,16 +27,35 @@ K8S_OPTIONS=$(jq -Rn '[inputs]' < "$TMP_YAML")
 echo "[INFO] Default Kubernetes version: $DEFAULT_K8S"
 echo "[INFO] Patch will include options: $K8S_OPTIONS"
 
+REPO_URL="https://charts.loft.sh"
+CHART_NAME="vcluster"
+
+LATEST_VCLUSTER=$(curl -s "$REPO_URL/index.yaml" \
+  | yq e ".entries.$CHART_NAME[].version" - \
+  | grep -v '\-alpha' | grep -v '\-beta' | grep -v '\-rc' \
+  | sort -Vr \
+  | head -n1)
+
+echo "[INFO] Latest vCluster chart version: $LATEST_VCLUSTER"
+
+# Update non-versioned patch (YAML)
 yq e -i '
   (.spec.parameters[] | select(.variable == "k8sVersion")).options = load("'"$TMP_YAML"'") |
-  (.spec.parameters[] | select(.variable == "k8sVersion")).defaultValue = "'"$DEFAULT_K8S"'"
+  (.spec.parameters[] | select(.variable == "k8sVersion")).defaultValue = "'"$DEFAULT_K8S"'" |
+  .spec.template.helmRelease.chart.version = "'"$LATEST_VCLUSTER"'"
 ' vcluster-gitops/virtual-cluster-templates/overlays/prod/patch-k8s-version.yaml
 
-# Use jq to build the patch JSON
+# Generate versioned patch (JSON)
 jq -n \
   --arg default "$DEFAULT_K8S" \
   --argjson options "$K8S_OPTIONS" \
+  --arg chartVersion "$LATEST_VCLUSTER" \
   '[
+    {
+      "op": "replace",
+      "path": "/spec/versions/0/template/helmRelease/chart/version",
+      "value": $chartVersion
+    },
     {
       op: "replace",
       path: "/spec/versions/0/parameters",
@@ -70,18 +89,9 @@ jq -n \
 
 echo "[✔] JSON patch written to $PATCH_JSON"
 
-REPO_URL="https://charts.loft.sh"
-CHART_NAME="vcluster"
-
-LATEST_VCLUSTER=$(curl -s "$REPO_URL/index.yaml" \
-  | yq e ".entries.$CHART_NAME[].version" - \
-  | grep -v '\-alpha' | grep -v '\-beta' | grep -v '\-rc' \
-  | sort -Vr \
-  | head -n1)
-
 echo "[INFO] Updating templates..."
 
-find vcluster-gitops vcluster-use-cases -type f -name "*.yaml" | while read -r file; do
+find vcluster-use-cases -type f -name "*.yaml" | while read -r file; do
   kind=$(yq e 'select(documentIndex == 0) | .kind' "$file" 2>/dev/null || echo "")
   if [[ "$kind" != "VirtualClusterTemplate" ]]; then
     echo "  ↳ Skipping non-VirtualClusterTemplate file"

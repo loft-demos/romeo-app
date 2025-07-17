@@ -1,6 +1,11 @@
 [
   {
     "op": "replace",
+    "path": "/spec/versions/0/template/helmRelease/chart/version",
+    "value": "0.26.0"
+  },
+  {
+    "op": "replace",
     "path": "/spec/versions/0/parameters",
     "value": [
       {

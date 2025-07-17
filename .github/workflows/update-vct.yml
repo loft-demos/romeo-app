@@ -22,10 +22,37 @@ jobs:
       - name: Run update script
         run: bash scripts/update-templates.sh
 
-      - name: Commit and push changes
+
+      - name: Create PR if changes exist
+        id: create_pr
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
+
+          # Create a new branch
+          BRANCH_NAME="auto/update-templates-$(date +%Y%m%d%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+
+          # Add and commit changes
           git add .
-          git commit -m "Auto-update vCluster Templates Kubernetes version parameters" || echo "No changes"
-          git push
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            echo "skip_pr=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          git commit -m "Auto-update vCluster Templates Kubernetes version parameters"
+          git push origin "$BRANCH_NAME"
+
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.create_pr.outputs.skip_pr != 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          head: ${{ steps.create_pr.outputs.branch_name }}
+          title: "Auto-update vCluster Templates Kubernetes version parameters"
+          body: |
+            This PR was automatically generated to update Kubernetes version options in vCluster Templates.

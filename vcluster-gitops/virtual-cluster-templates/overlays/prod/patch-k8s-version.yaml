@@ -3,6 +3,10 @@ kind: VirtualClusterTemplate
 metadata:
   name: dummy-name-to-be-overridden
 spec:
+  template:
+    helmRelease:
+      chart:
+        version: 0.26.0
   parameters:
     - variable: sleepAfter
       label: Sleep After Inactivity (minutes)
