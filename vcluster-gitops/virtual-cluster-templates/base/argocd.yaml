@@ -2,6 +2,8 @@ apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
 metadata:
   name: argo-cd-vcluster
+  labels:
+    patchType: non-versioned
 spec:
   displayName: Argo CD vCluster
   description: >-

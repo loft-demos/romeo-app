@@ -3,6 +3,8 @@ apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
 metadata:
   name: sleepy-vcluster-template
+  labels:
+    patchType: non-versioned
   annotations:
     argocd.argoproj.io/sync-options: Validate=false
 spec:

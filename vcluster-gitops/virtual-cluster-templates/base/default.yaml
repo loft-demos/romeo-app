@@ -2,6 +2,8 @@ kind: VirtualClusterTemplate
 apiVersion: management.loft.sh/v1
 metadata:
   name: default-template
+  labels:
+    patchType: versioned
 spec:
   displayName: Default Virtual Cluster Template
   description: This virtual cluster template deploys a vCluster with embedded etcd and integrated CoreDNS.

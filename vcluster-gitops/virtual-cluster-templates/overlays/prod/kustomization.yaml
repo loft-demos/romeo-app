@@ -1,8 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
 resources:
   - ../../base/
 
-patchesStrategicMerge:
-  - patch-k8s-version.yaml
-  - patch-k8s-versioned.yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
+patches:
+  - path: patch-k8s-version.yaml
+    target:
+      kind: VirtualClusterTemplate
+      labelSelector: patchType=non-versioned
+  - path: patch-k8s-versioned.yaml
+    target:
+      kind: VirtualClusterTemplate
+      labelSelector: patchType=versioned
