@@ -140,6 +140,7 @@ spec:
       ingress: {}
     spaceTemplate:
       metadata: {}
+      objects: |- null
   parameters:
     - variable: nodeSelectorHostName
       label: Host name for pod node selectors

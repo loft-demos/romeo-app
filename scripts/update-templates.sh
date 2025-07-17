@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "[INFO] Updating Kubernetes versions..."
-
+echo "[INFO] Fetching latest Kubernetes versions..."
 K8S_API_URL="https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=100"
 TMP_VERSIONS="/tmp/k8s-versions.txt"
 TMP_YAML="/tmp/k8s-versions.yaml"
@@ -24,14 +23,14 @@ awk -F. '
 DEFAULT_K8S=$(sed -n 2p "$TMP_YAML" | cut -d' ' -f2)
 
 yq e -i '
-  (.[] | select(.variable == "k8sVersion")).options = load("'"$TMP_YAML"'")
-' shared/parameters.yaml
+  (.spec.parameters[] | select(.variable == "k8sVersion")).options = load("'"$TMP_YAML"'") |
+  (.spec.parameters[] | select(.variable == "k8sVersion")).defaultValue = "'"$DEFAULT_K8S"'"
+' vcluster-gitops/virtual-cluster-templates/overlays/prod/patch-k8s-version.yaml
 
 yq e -i '
-  (.[] | select(.variable == "k8sVersion")).defaultValue = "'"$DEFAULT_K8S"'"
-' shared/parameters.yaml
-
-echo "[INFO] Updating vCluster chart versions and parameters..."
+  (.spec.versions[] | select(.version == "1.0.0").parameters[] | select(.variable == "k8sVersion")).options = load("'"$TMP_YAML"'") |
+  (.spec.versions[] | select(.version == "1.0.0").parameters[] | select(.variable == "k8sVersion")).defaultValue = "'"$DEFAULT_K8S"'"
+' vcluster-gitops/virtual-cluster-templates/overlays/prod/patch-k8s-versioned.yaml
 
 REPO_URL="https://charts.loft.sh"
 CHART_NAME="vcluster"
@@ -42,92 +41,41 @@ LATEST_VCLUSTER=$(curl -s "$REPO_URL/index.yaml" \
   | sort -Vr \
   | head -n1)
 
-sleep_param_file="/tmp/sleepAfter.yaml"
-k8s_param_file="/tmp/k8sVersion.yaml"
+echo "[INFO] Updating templates..."
 
-yq e '.[] | select(.variable == "sleepAfter")' shared/parameters.yaml > "$sleep_param_file"
-yq e '.[] | select(.variable == "k8sVersion")' shared/parameters.yaml > "$k8s_param_file"
-
-# The find command goes here, at the end of the while loop,
-# using process substitution to feed its output to the loop.
-while IFS= read -r file; do
-
-  echo "Updating $file"
-
-  kind=$(yq e 'select(.kind == "VirtualClusterTemplate") | .kind' "$file" 2>/dev/null || echo "")
-
+find vcluster-gitops vcluster-use-cases -type f -name "*.yaml" | while read -r file; do
+  kind=$(yq e 'select(documentIndex == 0) | .kind' "$file" 2>/dev/null || echo "")
   if [[ "$kind" != "VirtualClusterTemplate" ]]; then
     echo "  ↳ Skipping non-VirtualClusterTemplate file"
     continue
   fi
+  echo "Updating $file"
 
-  has_versions=$(yq e 'has("spec") and (.spec.versions | type == "!!seq")' "$file")
+  kind=$(yq e '.kind' "$file")
+  [[ "$kind" != "VirtualClusterTemplate" ]] && echo "  ↳ Skipping non-template" && continue
+
+  has_versions=$(yq e '.spec.versions | type == "!!seq"' "$file")
+
   if [[ "$has_versions" == "true" ]]; then
-    echo "[INFO] Updating versioned templates..."
+    echo "  ↳ Found versioned template"
 
-    current_chart=$(yq e '.spec.versions[] | select(.version == "1.0.0") | .template.helmRelease.chart.version' "$file" | head -n1)
-    has_parameters=$(yq e '.spec.versions[] | select(.version == "1.0.0") | has("parameters")' "$file")
-    if [[ "$current_chart" != "$LATEST_VCLUSTER" || "$has_parameters" == "true" ]]; then
-      # Extract the .values key into a clean YAML block
-      yq eval '.spec.versions[] | select(.version == "1.0.0") | .template.helmRelease.values' "$file" > /tmp/decoded-values.yaml
-
-      if [[ "$current_chart" != "$LATEST_VCLUSTER" ]]; then
-        echo "  ↳ Updating versioned chart from $current_chart to $LATEST_VCLUSTER"
-        yq e -i '(.spec.versions[] | select(.version == "1.0.0")).template.helmRelease.chart.version = "'"$LATEST_VCLUSTER"'"' "$file"
-      fi
-      
-      if [[ "$has_parameters" == "true" ]]; then
-        echo "  ↳ Updating parameters"
-        yq e -i '
-          (.spec.versions[] | select(.version == "1.0.0")).parameters |= 
-            (. // [] | map(select(.variable != "sleepAfter" and .variable != "k8sVersion")))
-        ' "$file"
-
-        yq e -i '
-          (.spec.versions[] | select(.version == "1.0.0")).parameters += 
-            [load("'"$sleep_param_file"'"), load("'"$k8s_param_file"'")]
-        ' "$file"
-      else
-        echo "  ↳ Skipping parameter update"
-      fi
-
-      yq eval -i '
-        (.spec.versions[] | select(.version == "1.0.0")).template.helmRelease.values = load("/tmp/decoded-values.yaml")
-      ' "$file"
-
-      perl -pi -e 's/values:(?! ?\|)/values: |/' "$file"
+    chart_version=$(yq e '.spec.versions[] | select(.version == "1.0.0") | .template.helmRelease.chart.version' "$file" | head -n1)
+    if [[ "$chart_version" != "$LATEST_VCLUSTER" ]]; then
+      echo "    ↳ Updating chart version to $LATEST_VCLUSTER"
+      sed -i '' -E "/- version: 1\.0\.0/,/^[[:space:]]*- version:|^[[:space:]]*access:/ {
+        /chart:/, /values:/ {
+          s/^([[:space:]]*version:[[:space:]]*)[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.]+)?/\1$LATEST_VCLUSTER/
+        }
+      }" "$file"
     fi
 
   else
+    echo "  ↳ Found unversioned template"
+
     chart_version=$(yq e '.spec.template.helmRelease.chart.version // ""' "$file")
-    # Check if .spec.parameters exists before mutating
-    has_parameters=$(yq e 'has("spec") and .spec | has("parameters")' "$file")
-    if [[  ( -n "$chart_version" && "$chart_version" != "$LATEST_VCLUSTER" ) || "$has_parameters" == "true" ]]; then
-      # Extract the .values key into a clean YAML block
-      yq eval '.spec.template.helmRelease.values' "$file" > /tmp/decoded-values.yaml
-      if [[ -n "$chart_version" && "$chart_version" != "$LATEST_VCLUSTER" ]]; then
-        echo "  ↳ Updating chart version from $chart_version to $LATEST_VCLUSTER"
-        yq e -i '.spec.template.helmRelease.chart.version = "'"$LATEST_VCLUSTER"'"' "$file"
-      fi
-      
-      if [[ "$has_parameters" == "true" ]]; then
-        echo "  ↳ Updating parameters"
-        yq e -i '
-          .spec.parameters = (.spec.parameters // [] | map(select(.variable != "sleepAfter" and .variable != "k8sVersion")))
-        ' "$file"
-
-        yq e -i '
-          .spec.parameters += [load("'"$sleep_param_file"'"), load("'"$k8s_param_file"'")]
-        ' "$file"
-      else
-        echo "  ↳ Skipping parameter update (no .spec.parameters block found)"
-      fi
-
-      yq eval -i '
-        .spec.template.helmRelease.values = load("/tmp/decoded-values.yaml")
-      ' "$file"
-
-      perl -pi -e 's/values:(?! ?\|)/values: |/' "$file"
+    if [[ "$chart_version" != "$LATEST_VCLUSTER" ]]; then
+      echo "    ↳ Updating chart version to $LATEST_VCLUSTER"
+      sed -i '' -E '/chart:/,/version:/ s/(version:[[:space:]]*)[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.]+)?/\1'"$LATEST_VCLUSTER"'/' "$file"
     fi
   fi
-done < <(find vcluster-gitops vcluster-use-cases -type f -name "*.yaml") 
+done

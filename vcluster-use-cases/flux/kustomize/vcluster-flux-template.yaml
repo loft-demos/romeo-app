@@ -77,6 +77,23 @@ spec:
           metadata: {}
           #apps: 
           #- name: generate-vcluster-kubeconfig
+      parameters:
+          label: Sleep After Inactivity (minutes)
+          type: number
+          options:
+            - '30'
+            - '45'
+            - '60'
+            - '120'
+          defaultValue: '45'
+          label: k8sVersion
+          description: Please select Kubernetes version
+          options:
+            - v1.33.3
+            - v1.32.7
+            - v1.31.11
+            - v1.30.14
+          defaultValue: v1.32.7
     - version: 0.0.0
       template:
         metadata: {}
@@ -104,3 +121,5 @@ spec:
       users:
         - admin
 status: {}
+
+

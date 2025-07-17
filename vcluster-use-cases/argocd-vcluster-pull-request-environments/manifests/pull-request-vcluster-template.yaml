@@ -134,7 +134,6 @@ spec:
           label: Repo Name
           type: string
           defaultValue: hello-app
-        - variable: sleepAfter
           label: Sleep After Inactivity (minutes)
           type: number
           options:
@@ -143,7 +142,6 @@ spec:
             - '60'
             - '120'
           defaultValue: '45'
-        - variable: k8sVersion
           label: k8sVersion
           description: Please select Kubernetes version
           options:
@@ -152,3 +150,5 @@ spec:
             - v1.31.11
             - v1.30.14
           defaultValue: v1.32.7
+
+

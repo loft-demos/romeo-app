@@ -101,7 +101,6 @@ spec:
             - prod
           defaultValue: dev
           section: Deployment Environment
-        - variable: sleepAfter
           label: Sleep After Inactivity (minutes)
           type: number
           options:
@@ -110,7 +109,6 @@ spec:
             - '60'
             - '120'
           defaultValue: '45'
-        - variable: k8sVersion
           label: k8sVersion
           description: Please select Kubernetes version
           options:
@@ -127,3 +125,5 @@ spec:
       users:
         - admin
 status: {}
+
+

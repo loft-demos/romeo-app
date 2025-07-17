@@ -57,6 +57,7 @@ spec:
       ingress: {}
     spaceTemplate:
       metadata: {}
+      objects: |- null
   parameters:
     - variable: sleepAfter
       label: Sleep After Inactivity (minutes)

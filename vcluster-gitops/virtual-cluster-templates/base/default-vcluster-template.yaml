@@ -48,7 +48,6 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            name: vcluster
             version: 0.26.0
           values: |
             sleepMode:
@@ -62,6 +61,7 @@ spec:
               platform:
                 autoDelete:
                   afterInactivity: 1800000
+                  
             sync:
               toHost:
                 pods:
@@ -79,7 +79,7 @@ spec:
                 workloadServiceAccount:
                   enabled: true
                   imagePullSecrets:
-                    - name: "hook-image-pull-secret"
+                  - name: "hook-image-pull-secret"
               distro:
                 k8s:
                   image:
@@ -114,8 +114,9 @@ spec:
                     enabled: true
               coredns:
                 embedded: true
+
+            # Checkout https://vcluster.com/pro/docs/ for more config options
         accessPoint:
-          # Checkout https://vcluster.com/pro/docs/ for more config options
           ingress: {}
         spaceTemplate:
           metadata: {}
@@ -130,34 +131,27 @@ spec:
               .dockerconfigjson: e30K
             type: kubernetes.io/dockerconfigjson
       parameters:
+        - variable: k8sVersion
+          label: k8sVersion
+          description: Please select Kubernetes version
+          options:
+            - v1.33.2
+            - v1.32.6
+            - v1.31.10
+            - v1.30.13
+          defaultValue: v1.32.6
+          section: Kubernetes Environment
         - variable: env
           label: Deployment Environment
           description: >-
-            Environment for deployments for this vCluster used as cluster label for Argo CD ApplicationSet Cluster Generator
+            Environment for deployments for this vCluster used as cluster label
+            for Argo CD ApplicationSet Cluster Generator
           options:
             - dev
             - qa
             - prod
           defaultValue: dev
           section: Deployment Environment
-        - variable: sleepAfter
-          label: Sleep After Inactivity (minutes)
-          type: number
-          options:
-            - '30'
-            - '45'
-            - '60'
-            - '120'
-          defaultValue: '45'
-        - variable: k8sVersion
-          label: k8sVersion
-          description: Please select Kubernetes version
-          options:
-            - v1.33.3
-            - v1.32.7
-            - v1.31.11
-            - v1.30.14
-          defaultValue: v1.32.7
     - template:
         metadata: {}
         instanceTemplate:
@@ -166,7 +160,7 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.24.0
+            version: 0.26.0
           values: |-
             sync:
               toHost:
