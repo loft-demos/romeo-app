@@ -53,10 +53,16 @@ jobs:
         env:
           BRANCH_NAME: ${{ steps.prepare_branch.outputs.branch_name }}
 
-      - name: Debug changes
+      - name: Check for remaining diffs from main
+        id: check_diff
         run: |
-          git status
-          git diff
+          git fetch origin main
+          if git diff --quiet origin/main...HEAD; then
+            echo "No diff from main. Skipping PR."
+            echo "skip_pr=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip_pr=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create Pull Request
         if: steps.commit_push_changes.outputs.skip_pr != 'true'
@@ -68,3 +74,9 @@ jobs:
           title: "Auto-update vCluster Templates Kubernetes version parameters"
           body: |
             This PR was automatically generated to update Kubernetes version options in vCluster Templates.
+          delete-branch: true
+          draft: false
+          labels: auto-update
+          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          rebase: false 
