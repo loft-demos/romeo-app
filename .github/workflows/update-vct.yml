@@ -71,7 +71,6 @@ jobs:
             --title "Auto-update vCluster Templates Kubernetes version parameters" \
             --body "This PR was automatically generated to update Kubernetes version options in vCluster Templates." \
             --head "${{ steps.prepare_branch.outputs.branch_name }}" \
-            --base main \
-            --label auto-update
+            --base main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
