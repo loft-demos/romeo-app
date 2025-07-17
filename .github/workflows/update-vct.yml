@@ -32,6 +32,11 @@ jobs:
       - name: Run update script
         run: bash scripts/update-templates.sh
 
+      - name: Debug changes
+        run: |
+          git status
+          git diff
+
       - name: Commit and push changes
         id: commit_push_changes
         run: |
