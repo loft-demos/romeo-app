@@ -35,14 +35,19 @@ jobs:
       - name: Commit and push changes
         id: commit_push_changes
         run: |
-          git add .
+          git status
+          git add u
+
+          echo "Git diff --cached output:"
+          git diff --cached
+
           if git diff --cached --quiet; then
             echo "No changes to commit."
             echo "skip_pr=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          git commit -ma "Auto-update vCluster Templates Kubernetes version parameters"
+          git commit -am "Auto-update vCluster Templates Kubernetes version parameters"
           git push origin "$BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
         env:
