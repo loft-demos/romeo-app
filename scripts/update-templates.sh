@@ -79,7 +79,6 @@ jq -n \
         {
           variable: "sleepAfter",
           label: "Sleep After Inactivity (minutes)",
-          type: "number",
           options: ["30", "45", "60", "120"],
           defaultValue: "45"
         }
