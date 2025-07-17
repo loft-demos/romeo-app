@@ -47,12 +47,12 @@ jobs:
           echo "branch_name=${{ steps.prepare_branch.outputs.branch_name }}" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
-        if: steps.create_pr.outputs.skip_pr != 'true'
+        if: steps.commit_push_changes.outputs.skip_pr != 'true'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
-          branch: ${{ steps.create_pr.outputs.branch_name }}
+          branch: ${{ steps.commit_push_changes.outputs.branch_name }}
           title: "Auto-update vCluster Templates Kubernetes version parameters"
           body: |
             This PR was automatically generated to update Kubernetes version options in vCluster Templates.
