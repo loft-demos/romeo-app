@@ -66,17 +66,12 @@ jobs:
 
       - name: Create Pull Request
         if: steps.commit_push_changes.outputs.skip_pr != 'true'
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          branch: ${{ steps.commit_push_changes.outputs.branch_name }}
-          title: "Auto-update vCluster Templates Kubernetes version parameters"
-          body: |
-            This PR was automatically generated to update Kubernetes version options in vCluster Templates.
-          delete-branch: true
-          draft: false
-          labels: auto-update
-          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          rebase: false 
+        run: |
+          gh pr create \
+            --title "Auto-update vCluster Templates Kubernetes version parameters" \
+            --body "This PR was automatically generated to update Kubernetes version options in vCluster Templates." \
+            --head "${{ steps.prepare_branch.outputs.branch_name }}" \
+            --base main \
+            --label auto-update
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
