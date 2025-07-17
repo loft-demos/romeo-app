@@ -19,21 +19,22 @@ jobs:
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
           chmod +x /usr/local/bin/yq
 
-      - name: Run update script
-        run: bash scripts/update-templates.sh
-
-
-      - name: Create PR if changes exist
-        id: create_pr
+      - name: Create PR branch
+        id: prepare_branch
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
 
-          # Create a new branch
           BRANCH_NAME="auto/update-templates-$(date +%Y%m%d%H%M%S)"
           git checkout -b "$BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
-          # Add and commit changes
+      - name: Run update script
+        run: bash scripts/update-templates.sh
+
+      - name: Commit and push changes
+        id: commit_push_changes
+        run: |
           git add .
           if git diff --cached --quiet; then
             echo "No changes to commit."
@@ -42,9 +43,8 @@ jobs:
           fi
 
           git commit -m "Auto-update vCluster Templates Kubernetes version parameters"
-          git push origin "$BRANCH_NAME"
-
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          git push origin "${{ steps.prepare_branch.outputs.branch_name }}"
+          echo "branch_name=${{ steps.prepare_branch.outputs.branch_name }}" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
         if: steps.create_pr.outputs.skip_pr != 'true'
