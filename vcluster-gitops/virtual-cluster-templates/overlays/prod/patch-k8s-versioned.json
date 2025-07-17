@@ -43,7 +43,8 @@
           "60",
           "120"
         ],
-        "defaultValue": "45"
+        "defaultValue": "45",
+        "section": "Deployment Environment"
       }
     ]
   }
