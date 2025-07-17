@@ -2,7 +2,7 @@
   {
     "op": "replace",
     "path": "/spec/versions/0/template/helmRelease/chart/version",
-    "value": "0.26.0"
+    "value": "0.25.0"
   },
   {
     "op": "replace",
@@ -13,7 +13,7 @@
         "label": "k8sVersion",
         "description": "Please select Kubernetes version",
         "options": [
-          "- v1.33.3",
+          "- v1.33.1",
           "- v1.32.7",
           "- v1.31.11",
           "- v1.30.14"
