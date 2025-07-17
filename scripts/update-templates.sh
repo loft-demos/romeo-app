@@ -5,6 +5,7 @@ echo "[INFO] Fetching latest Kubernetes versions..."
 K8S_API_URL="https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=100"
 TMP_VERSIONS="/tmp/k8s-versions.txt"
 TMP_YAML="/tmp/k8s-versions.yaml"
+PATCH_JSON="vcluster-gitops/virtual-cluster-templates/overlays/prod/patch-k8s-versioned.json"
 
 curl -s "$K8S_API_URL" | jq -r '.[] | select(.prerelease == false) | .tag_name' \
   | grep -E '^v1\.[0-9]+\.[0-9]+$' \
@@ -21,16 +22,53 @@ awk -F. '
 ' "$TMP_VERSIONS.all" | head -n 4 > "$TMP_YAML"
 
 DEFAULT_K8S=$(sed -n 2p "$TMP_YAML" | cut -d' ' -f2)
+K8S_OPTIONS=$(jq -Rn '[inputs]' < "$TMP_YAML")
+
+echo "[INFO] Default Kubernetes version: $DEFAULT_K8S"
+echo "[INFO] Patch will include options: $K8S_OPTIONS"
 
 yq e -i '
   (.spec.parameters[] | select(.variable == "k8sVersion")).options = load("'"$TMP_YAML"'") |
   (.spec.parameters[] | select(.variable == "k8sVersion")).defaultValue = "'"$DEFAULT_K8S"'"
 ' vcluster-gitops/virtual-cluster-templates/overlays/prod/patch-k8s-version.yaml
 
-yq e -i '
-  (.spec.versions[] | select(.version == "1.0.0").parameters[] | select(.variable == "k8sVersion")).options = load("'"$TMP_YAML"'") |
-  (.spec.versions[] | select(.version == "1.0.0").parameters[] | select(.variable == "k8sVersion")).defaultValue = "'"$DEFAULT_K8S"'"
-' vcluster-gitops/virtual-cluster-templates/overlays/prod/patch-k8s-versioned.yaml
+# Use jq to build the patch JSON
+jq -n \
+  --arg default "$DEFAULT_K8S" \
+  --argjson options "$K8S_OPTIONS" \
+  '[
+    {
+      op: "replace",
+      path: "/spec/versions/0/parameters",
+      value: [
+        {
+          variable: "k8sVersion",
+          label: "k8sVersion",
+          description: "Please select Kubernetes version",
+          options: $options,
+          defaultValue: $default,
+          section: "Kubernetes Environment"
+        },
+        {
+          variable: "env",
+          label: "Deployment Environment",
+          description: "Environment for deployments used as cluster label",
+          options: ["dev", "qa", "prod"],
+          defaultValue: "dev",
+          section: "Deployment Environment"
+        },
+        {
+          variable: "sleepAfter",
+          label: "Sleep After Inactivity (minutes)",
+          type: "number",
+          options: ["30", "45", "60", "120"],
+          defaultValue: "45"
+        }
+      ]
+    }
+  ]' > "$PATCH_JSON"
+
+echo "[✔] JSON patch written to $PATCH_JSON"
 
 REPO_URL="https://charts.loft.sh"
 CHART_NAME="vcluster"
