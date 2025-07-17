@@ -22,7 +22,7 @@ awk -F. '
 ' "$TMP_VERSIONS.all" | head -n 4 > "$TMP_YAML"
 
 DEFAULT_K8S=$(sed -n 2p "$TMP_YAML" | cut -d' ' -f2)
-K8S_OPTIONS=$(jq -Rn '[inputs]' < "$TMP_YAML")
+K8S_OPTIONS=$(sed 's/^- //' "$TMP_YAML" | jq -R -s -c 'split("\n") | map(select(length > 0))')
 
 echo "[INFO] Default Kubernetes version: $DEFAULT_K8S"
 echo "[INFO] Patch will include options: $K8S_OPTIONS"

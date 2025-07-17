@@ -10,7 +10,6 @@ spec:
   parameters:
     - variable: sleepAfter
       label: Sleep After Inactivity (minutes)
-      type: number
       options:
         - '30'
         - '45'
