@@ -52,7 +52,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
-          head: ${{ steps.create_pr.outputs.branch_name }}
+          branch: ${{ steps.create_pr.outputs.branch_name }}
           title: "Auto-update vCluster Templates Kubernetes version parameters"
           body: |
             This PR was automatically generated to update Kubernetes version options in vCluster Templates.
