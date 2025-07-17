@@ -106,11 +106,18 @@ find vcluster-use-cases -type f -name "*.yaml" | while read -r file; do
 
   if [[ "$has_versions" == "true" ]]; then
     echo "  ↳ Found versioned template"
+    sed_inplace() {
+      if sed --version >/dev/null 2>&1; then
+        sed -i -E "$@"
+      else
+        sed -i '' -E "$@"
+      fi
+    }
 
     chart_version=$(yq e '.spec.versions[] | select(.version == "1.0.0") | .template.helmRelease.chart.version' "$file" | head -n1)
     if [[ "$chart_version" != "$LATEST_VCLUSTER" ]]; then
       echo "    ↳ Updating chart version to $LATEST_VCLUSTER"
-      sed -i '' -E "/- version: 1\.0\.0/,/^[[:space:]]*- version:|^[[:space:]]*access:/ {
+      sed_inplace "/- version: 1\.0\.0/,/^[[:space:]]*- version:|^[[:space:]]*access:/ {
         /chart:/, /values:/ {
           s/^([[:space:]]*version:[[:space:]]*)[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.]+)?/\1$LATEST_VCLUSTER/
         }
@@ -123,7 +130,7 @@ find vcluster-use-cases -type f -name "*.yaml" | while read -r file; do
     chart_version=$(yq e '.spec.template.helmRelease.chart.version // ""' "$file")
     if [[ "$chart_version" != "$LATEST_VCLUSTER" ]]; then
       echo "    ↳ Updating chart version to $LATEST_VCLUSTER"
-      sed -i '' -E '/chart:/,/version:/ s/(version:[[:space:]]*)[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.]+)?/\1'"$LATEST_VCLUSTER"'/' "$file"
+      sed_inplace '/chart:/,/version:/ s/(version:[[:space:]]*)[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.]+)?/\1'"$LATEST_VCLUSTER"'/' "$file"
     fi
   fi
 done
