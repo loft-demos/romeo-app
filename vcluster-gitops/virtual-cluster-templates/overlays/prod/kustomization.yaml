@@ -8,6 +8,7 @@ patches:
     target:
       kind: VirtualClusterTemplate
       version: v1
+      labelSelector: patchType=non-versioned
 patchesJson6902:
   - target:
       group: management.loft.sh
