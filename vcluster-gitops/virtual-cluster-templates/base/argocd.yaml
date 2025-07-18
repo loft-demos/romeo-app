@@ -90,7 +90,7 @@ spec:
       enabled: true
     helmRelease:
       chart:
-        version: 0.23.0
+        version: 0.26.0
       values: |
         sleepMode:
           enabled: true
@@ -98,7 +98,7 @@ spec:
             schedule: 0 22 * * *
           timeZone: America/New_York
           autoWakeup:
-            schedule: 0 6 * * 1-5
+            schedule: 0 8-17 * * *
         external:
           platform:
             autoDelete:
