@@ -12,6 +12,7 @@
         "variable": "k8sVersion",
         "label": "k8sVersion",
         "description": "Please select Kubernetes version",
+        "type": "string",
         "options": [
           "v1.33.3",
           "v1.32.7",
