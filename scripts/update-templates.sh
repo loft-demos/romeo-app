@@ -64,6 +64,7 @@ jq -n \
           variable: "k8sVersion",
           label: "k8sVersion",
           description: "Please select Kubernetes version",
+          type: "string",
           options: $options,
           defaultValue: $default,
           section: "Kubernetes Environment"
@@ -79,6 +80,7 @@ jq -n \
         {
           variable: "sleepAfter",
           label: "Sleep After Inactivity (minutes)",
+          type: "string",
           options: ["30", "45", "60", "120"],
           defaultValue: "45"
         }
