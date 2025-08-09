@@ -10,7 +10,7 @@ spec:
   source:
     kustomize:
     path: vcluster-gitops
-    repoURL: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}.git
+    repoURL: https://github.com/loft-demos/romeo-app.git
     targetRevision: HEAD
   syncPolicy:
     automated:

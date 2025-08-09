@@ -18,8 +18,8 @@ spec:
                 appSecretName: loft-demo-org-cred
                 labels:
                   - preview-multi-k8s
-                owner: {REPLACE_ORG_NAME}
-                repo: {REPLACE_REPO_NAME}
+                owner: loft-demos
+                repo: romeo-app
               requeueAfterSeconds: 30
               template:
                 metadata: {}
@@ -28,20 +28,20 @@ spec:
                   project: ''
   template:
     metadata:
-      name: {REPLACE_REPO_NAME}-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-vcluster
+      name: romeo-app-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-vcluster
     spec:
       destination:
         name: in-cluster
         namespace: p-auth-core
       info:
         - name: PR vCluster Argo CD URL
-          value: https://argocd-{REPLACE_REPO_NAME}.{REPLACE_BASE_DOMAIN}
+          value: https://argocd-romeo-app.us.demo.dev
         - name: GitHub PR
-          value: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}/pull/{{number}}
+          value: https://github.com/loft-demos/romeo-app/pull/{{number}}
       project: loft-auth-core
       source:
         kustomize:
-          namePrefix: {REPLACE_REPO_NAME}-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-
+          namePrefix: romeo-app-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-
           patches:
             - patch: |-
                 - op: add
@@ -49,10 +49,10 @@ spec:
                   value: auth-core
                 - op: add
                   path: /metadata/labels/vclusterName
-                  value: {REPLACE_REPO_NAME}-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-vcluster
+                  value: romeo-app-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-vcluster
                 - op: add
                   path: /metadata/labels/repo
-                  value: {REPLACE_REPO_NAME}
+                  value: romeo-app
                 - op: add
                   path: /metadata/labels/prLabel
                   value: 'preview-multi-k8s'
@@ -84,7 +84,7 @@ spec:
                 kind: VirtualClusterInstance
                 name: vcluster
         path: vcluster-use-cases/argocd-vcluster-pull-request-environments/kustomize
-        repoURL: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}.git
+        repoURL: https://github.com/loft-demos/romeo-app.git
         targetRevision: '{{branch}}'
       syncPolicy:
         automated:
