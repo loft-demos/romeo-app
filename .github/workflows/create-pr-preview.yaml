@@ -1,0 +1,61 @@
+name: create-pr-preview
+
+# on merge to main from pull request (recommended)
+on:
+  pull_request:
+    types: [labeled]
+    branches:
+      - main
+env:
+  REPO_NAME: ${{ github.event.repository.name }}
+  PR_LINK: ${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+
+jobs:
+  create-preview-env:
+    if: ${{ github.event.label.name == 'preview' }}
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      pull-requests: write
+    steps:
+      - id: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - id: install-loft-cli
+        uses: loft-sh/setup-loft@v2
+        with:
+          version: v3.4.0
+          url: https://REPLACE_LOFT_DEMO_DOMAIN
+          # Specify your Loft access key here
+          access-key: ${{ secrets.LOFT_DEMO_ENV_ACCESS_KEY }}
+          kubectl-install: false
+          kubectl-version: v1.29.2
+
+      - id: create-preview-vcluster
+        run: |
+          loft create vcluster $REPO_NAME-pr-${{ github.event.pull_request.number }} --project api-framework \
+            --template preview-template \
+            --link "GitHub PR=$PR_LINK" \
+            --link "Preview=https://${{ env.REPO_NAME}}-pr-${{ github.event.pull_request.number }}-REPLACE_LOFT_DEMO_DOMAIN/" \
+            --link "Argo CD=https://argocd-REPLACE_LOFT_DEMO_DOMAIN/applications/argocd/${{ env.REPO_NAME}}-${{ github.event.pull_request.head.ref }}-pr${{ github.event.pull_request.number }}?view=tree"
+
+      - id: trigger-argocd-appset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "preview-cluster-ready"
+
+      - id: add-pr-link
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          number: ${{ github.event.pull_request.number }}
+          header: release
+          message: |
+            [Preview environment app link](https://${{ env.REPO_NAME}}-pr-${{ github.event.pull_request.number }}-REPLACE_LOFT_DEMO_DOMAIN)
+            
+            [Argo CD App](https://argocd-REPLACE_LOFT_DEMO_DOMAIN/applications/argocd/${{ env.REPO_NAME}}-${{ github.event.pull_request.head.ref }}-pr${{ github.event.pull_request.number }}?view=tree)
+            
+            [Preview vcluster pods](https://REPLACE_LOFT_DEMO_DOMAIN/projects/api-framework/vclusters/$REPO_NAME-pr-${{ github.event.pull_request.number }}/pods)
+            
