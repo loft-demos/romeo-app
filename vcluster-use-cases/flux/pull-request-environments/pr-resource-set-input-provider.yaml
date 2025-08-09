@@ -1,0 +1,22 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSetInputProvider
+metadata:
+  name: preview-pull-requests
+  namespace: p-auth-core
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: "4h"
+spec:
+  type: GitHubPullRequest
+  url: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}
+  secretRef:
+    name: loft-demo-org-cred
+  filter:
+    labels:
+      - "deploy/flux-vcluster-preview"
+  defaultValues:
+    chart: "helm-chart"
+    k8sVersions:
+      - name: "1-33-3"
+        value: "v1.33.3"
+      - name: "1-32-7"
+        value: "v1.32.7"
