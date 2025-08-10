@@ -16,13 +16,13 @@ spec:
     kind: GitRepository
     metadata:
       # GitRepository resource for the vCluster instance
-      name: {REPLACE_REPO_NAME}-vcluster-<< inputs.id >>
+      name: romeo-app-vcluster-<< inputs.id >>
       # the vCluster Platfrom Auth Core project namespace
       namespace: p-auth-core
     spec:
       provider: generic # or 'github' if using GitHub App
       interval: 48h
-      url: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}
+      url: https://github.com/loft-demos/romeo-app
       ref:
         # configured to only watch the Pull Request branch as the vCluster does not need to be updated for each PR commit
         branch: << inputs.branch >> 
@@ -31,12 +31,12 @@ spec:
     apiVersion: source.toolkit.fluxcd.io/v1
     kind: GitRepository
     metadata:
-      name: {REPLACE_REPO_NAME}-preview-<< inputs.id >>
+      name: romeo-app-preview-<< inputs.id >>
       namespace: p-auth-core
     spec:
       provider: generic # or 'github' if using GitHub App
       interval: 48h
-      url: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}
+      url: https://github.com/loft-demos/romeo-app
       ref:
         # using PR head sha will trigger update on every commit to PR head branch
         commit: << inputs.sha >>
@@ -47,13 +47,13 @@ spec:
     apiVersion: notification.toolkit.fluxcd.io/v1beta3
     kind: Provider
     metadata:
-      name: {REPLACE_REPO_NAME}-preview-<< inputs.id >>-k8s-<< $v.name >>
+      name: romeo-app-preview-<< inputs.id >>-k8s-<< $v.name >>
       namespace: p-auth-core
     spec:
       type: generic
       timeout: 2m
       # address is specific to the vCluster create for a given pull request id
-      address: https://{REPLACE_VCLUSTER_NAME}.{REPLACE_BASE_DOMAIN}/kubernetes/project/auth-core/virtualcluster/{REPLACE_REPO_NAME}-flux-preview-<< inputs.id >>-k8s-<< $v.name >>
+      address: https://romeo.us.demo.dev/kubernetes/project/auth-core/virtualcluster/romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>
       secretRef:
         name: vcluster-platform-provider-headers
     ---
@@ -61,26 +61,26 @@ spec:
     apiVersion: notification.toolkit.fluxcd.io/v1beta3
     kind: Alert
     metadata:
-      name: {REPLACE_REPO_NAME}-preview-<< inputs.id >>-k8s-<< $v.name >>
+      name: romeo-app-preview-<< inputs.id >>-k8s-<< $v.name >>
       namespace: p-auth-core
     spec:
       suspend: true
       eventMetadata:
         summary: "PR Updated, wakeup vCluster"
       providerRef:
-        name: {REPLACE_REPO_NAME}-preview-<< inputs.id >>-k8s-<< $v.name >>
+        name: romeo-app-preview-<< inputs.id >>-k8s-<< $v.name >>
       eventSeverity: info
       inclusionList:
         - ".*commit.*"
       eventSources:
         - kind: GitRepository
-          name: '{REPLACE_REPO_NAME}-preview-<< inputs.id >>'
+          name: 'romeo-app-preview-<< inputs.id >>'
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
       # repo name with PR number and part PR label is enough to make the Virtual Cluster Instance name unique
-      name: {REPLACE_REPO_NAME}-flux-preview-vcluster-<< inputs.id >>-k8s-<< $v.name >>
+      name: romeo-app-flux-preview-vcluster-<< inputs.id >>-k8s-<< $v.name >>
       namespace: p-auth-core
     spec:
       interval: 48h
@@ -89,7 +89,7 @@ spec:
       targetNamespace: p-auth-core
       sourceRef:
         kind: GitRepository
-        name: {REPLACE_REPO_NAME}-vcluster-<< inputs.id >>
+        name: romeo-app-vcluster-<< inputs.id >>
       path: "./vcluster-use-cases/flux/pull-request-environments/kustomize"
       prune: true
       timeout: 5m
@@ -108,7 +108,7 @@ spec:
             - op: add
               path: /metadata/name
               value:
-                {REPLACE_REPO_NAME}-flux-preview-<< inputs.id >>-k8s-<< $v.name >>
+                romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>
             - op: replace
               path: /spec/parameters
               value: |
@@ -120,7 +120,7 @@ spec:
     apiVersion: notification.toolkit.fluxcd.io/v1beta3
     kind: Alert
     metadata:
-      name: github-status-{REPLACE_REPO_NAME}-preview-<< inputs.id >>-k8s-<< $v.name >>
+      name: github-status-romeo-app-preview-<< inputs.id >>-k8s-<< $v.name >>
       namespace: p-auth-core
     spec:
       providerRef:
@@ -128,14 +128,14 @@ spec:
       eventSources:
         - kind: HelmRelease
           name: '*'
-          namespace: "loft-auth-core-v-{REPLACE_REPO_NAME}-flux-preview-<< inputs.id >>-k8s-<< $v.name >>"
+          namespace: "loft-auth-core-v-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>"
     ---
     # Alert used to add comment to pull request
     # It is created in the p-auth-core namespace because injecting the GitHub PAT Secret into the vCluster namespace takes too long
     apiVersion: notification.toolkit.fluxcd.io/v1beta3
     kind: Alert
     metadata:
-      name: github-pr-comment-{REPLACE_REPO_NAME}-preview-<< inputs.id >>-k8s-<< $v.name >>
+      name: github-pr-comment-romeo-app-preview-<< inputs.id >>-k8s-<< $v.name >>
       namespace: p-auth-core
     spec:
       providerRef:
@@ -143,18 +143,18 @@ spec:
       eventSources:
         - kind: HelmRelease
           name: '*'
-          namespace: "loft-auth-core-v-{REPLACE_REPO_NAME}-flux-preview-<< inputs.id >>-k8s-<< $v.name >>"
+          namespace: "loft-auth-core-v-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>"
     ---
     # Kustomization wrapper for HelmRelease to allow use of dependsOn
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
-      name: {REPLACE_REPO_NAME}-flux-preview-app-<< inputs.id >>-k8s-<< $v.name >>
+      name: romeo-app-flux-preview-app-<< inputs.id >>-k8s-<< $v.name >>
       namespace: p-auth-core
     spec:
       dependsOn:
         # this dependsOn allows for vCluster to be up and running before Flux deploys HelmRelease
-        - name: {REPLACE_REPO_NAME}-flux-preview-vcluster-<< inputs.id >>-k8s-<< $v.name >>
+        - name: romeo-app-flux-preview-vcluster-<< inputs.id >>-k8s-<< $v.name >>
           namespace: p-auth-core
       interval: 48h
       retryInterval: 30s
@@ -165,7 +165,7 @@ spec:
       sourceRef:
         kind: GitRepository
         # using this GitRepository tied to the PR head commit sha
-        name: {REPLACE_REPO_NAME}-preview-<< inputs.id >>
+        name: romeo-app-preview-<< inputs.id >>
       patches:
         - target:
             kind: HelmRepository
@@ -173,7 +173,7 @@ spec:
             - op: add
               path: /metadata/namespace
               value: # based on Auth Core vCluster Platform project pattern for vCluster namespaces
-                loft-auth-core-v-{REPLACE_REPO_NAME}-flux-preview-<< inputs.id >>-k8s-<< $v.name >>
+                loft-auth-core-v-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>
         - target:
             kind: HelmRelease
           patch: |
@@ -181,12 +181,12 @@ spec:
               path: /metadata/namespace
               # the HelmRelease must be in the same namespace as the kubeConfig.secretRef for the vCluster
               value: 
-                loft-auth-core-v-{REPLACE_REPO_NAME}-flux-preview-<< inputs.id >>-k8s-<< $v.name >>
+                loft-auth-core-v-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>
             - op: add
               path: /metadata/annotations
               # the following annotations are used to populate notifications
               value:
-                event.toolkit.fluxcd.io/preview-url: "https://podinfo-{REPLACE_REPO_NAME}-flux-preview-<< inputs.id >>-k8s-<< $v.name >>.{REPLACE_BASE_DOMAIN}"
+                event.toolkit.fluxcd.io/preview-url: "https://podinfo-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>.us.demo.dev"
                 event.toolkit.fluxcd.io/pr-number: "<< inputs.id >>"
                 event.toolkit.fluxcd.io/sha: "<< inputs.sha >>"
                 event.toolkit.fluxcd.io/k8s-version: "<< $v.value >>"
@@ -208,13 +208,13 @@ spec:
               path: /spec/values
               value:
                 ui:
-                  message: "deployed to {REPLACE_REPO_NAME}-flux-preview-<< inputs.id >>-k8s-<< $v.name >> << inputs.sha >>" # use of sha here to simulate dynamic app deployment
+                  message: "deployed to romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >> << inputs.sha >>" # use of sha here to simulate dynamic app deployment
             - op: add
               path: /spec/values/ingress
               value:
                 enabled: true
                 hosts:
-                  - host: "podinfo-{REPLACE_REPO_NAME}-flux-preview-<< inputs.id >>-k8s-<< $v.name >>.{REPLACE_BASE_DOMAIN}"
+                  - host: "podinfo-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>.us.demo.dev"
                     paths:
                       - path: /
                         pathType: ImplementationSpecific

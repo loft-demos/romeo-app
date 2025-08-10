@@ -20,7 +20,7 @@ spec:
     targetRevision: 2.11.2
     helm:
       valuesObject:
-        hostname: rancher-{REPLACE_VCLUSTER_NAME}.{REPLACE_BASE_DOMAIN}
+        hostname: rancher-romeo.us.demo.dev
         agentTLSMode: "system-store"
         tls: "ingress"
         ingress:
