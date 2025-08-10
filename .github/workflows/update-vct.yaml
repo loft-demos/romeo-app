@@ -1,0 +1,104 @@
+name: Auto-Update vCluster Templates + K8s Versions
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+    
+      - name: Ensure label exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LABEL="auto-update-templates"
+          if ! gh label list --search "$LABEL" --limit 1 | grep -q "^$LABEL\b"; then
+            gh label create "$LABEL" --color 0366d6 --description "Automated vCluster/K8s template updates" || true
+          fi
+
+      - name: Create PR branch
+        id: prepare_branch
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+
+          BRANCH_NAME="auto/update-templates-$(date +%Y%m%d%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Run update script
+        run: bash scripts/update-templates.sh
+
+      - name: Commit and push changes
+        id: commit_push_changes
+        run: |
+          git status
+          git add -u
+
+          echo "Git diff --cached output:"
+          git diff --cached
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            echo "skip_pr=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          git commit -am "Auto-update vCluster Templates Kubernetes version parameters"
+          git push origin "$BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        env:
+          BRANCH_NAME: ${{ steps.prepare_branch.outputs.branch_name }}
+
+      - name: Check for remaining diffs from main
+        id: check_diff
+        run: |
+          git fetch origin main
+          if git diff --quiet origin/main...HEAD; then
+            echo "No diff from main. Skipping PR."
+            echo "skip_pr=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip_pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Close any existing PRs with the label before creating a new one
+      - name: Close existing auto-update PRs (by label)
+        if: steps.commit_push_changes.outputs.skip_pr != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LABEL="auto-update-templates"
+          echo "Looking for open PRs labeled '$LABEL'..."
+          PRS=$(gh pr list --state open --label "$LABEL" --json number --jq '.[].number')
+          if [ -n "$PRS" ]; then
+            for PR in $PRS; do
+              echo "Closing PR #$PR"
+              gh pr close "$PR" --delete-branch || gh pr close "$PR"
+            done
+          else
+            echo "No labeled auto-update PRs found."
+          fi
+
+      - name: Create Pull Request
+        if: steps.commit_push_changes.outputs.skip_pr != 'true'
+        run: |
+          gh pr create \
+            --title "Auto-update vCluster Templates Kubernetes version parameters" \
+            --label "auto-update-templates" \
+            --body "This PR was automatically generated to update Kubernetes version options in vCluster Templates." \
+            --head "${{ steps.prepare_branch.outputs.branch_name }}" \
+            --base main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
