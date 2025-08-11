@@ -83,8 +83,9 @@ spec:
                     env: "qa"
                     sleepAfter: "30"
               target:
+                group: management.loft.sh
+                version: v1
                 kind: VirtualClusterInstance
-                name: vcluster
         path: vcluster-use-cases/argocd-vcluster-pull-request-environments/kustomize
         repoURL: https://github.com/loft-demos/romeo-app.git
         targetRevision: '{{branch}}'
