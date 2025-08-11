@@ -90,5 +90,6 @@ spec:
         repoURL: https://github.com/loft-demos/romeo-app.git
         targetRevision: '{{branch}}'
       syncPolicy:
+        preserveResourcesOnDeletion: true
         automated:
           selfHeal: true
