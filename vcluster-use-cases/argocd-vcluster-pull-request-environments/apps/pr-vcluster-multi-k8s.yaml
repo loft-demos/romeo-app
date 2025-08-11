@@ -43,7 +43,7 @@ spec:
       project: loft-auth-core
       source:
         kustomize:
-          namePrefix: romeo-app-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-
+          namePrefix: pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-
           patches:
             - patch: |-
                 - op: add
@@ -51,7 +51,7 @@ spec:
                   value: auth-core
                 - op: add
                   path: /metadata/labels/vclusterName
-                  value: romeo-app-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-vcluster
+                  value: pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-vc
                 - op: add
                   path: /metadata/labels/repo
                   value: romeo-app
