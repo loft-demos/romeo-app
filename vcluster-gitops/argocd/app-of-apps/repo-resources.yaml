@@ -15,7 +15,7 @@ spec:
       - name: preview
         color: ee7d3b
         description: Creates vCluster preview environment for a Pull Request with a GitHub Action and Argo CD AppSet
-      - name: 'deploy/argocd-vcluster-preview'
+      - name: 'deploy-argocd-vcluster-preview'
         color: ee7d3b
         description: Triggers the creation of a matrix of vCluster instances for different Kubernetes versions
       - name: preview-cluster-ready
