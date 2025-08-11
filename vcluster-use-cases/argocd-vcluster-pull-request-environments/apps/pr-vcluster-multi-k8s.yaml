@@ -19,7 +19,7 @@ spec:
               github:
                 appSecretName: loft-demo-org-cred
                 labels:
-                  - preview-multi-k8s
+                  - 'deploy/argocd-vcluster-preview'
                 owner: loft-demos
                 repo: romeo-app
               requeueAfterSeconds: 30
