@@ -81,7 +81,7 @@ spec:
                   value: |
                     k8sVersion: "{{k8sVersion}}"
                     env: "qa"
-                    sleepAfter: "30"
+                    sleepAfter: "8"
               target:
                 group: management.loft.sh
                 version: v1
