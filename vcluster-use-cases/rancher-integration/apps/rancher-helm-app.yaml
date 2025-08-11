@@ -19,6 +19,7 @@ spec:
     repoURL: https://releases.rancher.com/server-charts/stable
     targetRevision: 2.11.3
     helm:
+      releaseName: rancher
       valuesObject:
         hostname: rancher-romeo.us.demo.dev
         agentTLSMode: "system-store"
