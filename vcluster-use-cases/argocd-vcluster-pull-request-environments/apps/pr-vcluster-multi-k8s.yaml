@@ -57,7 +57,7 @@ spec:
                   value: romeo-app
                 - op: add
                   path: /metadata/labels/prLabel
-                  value: 'preview-multi-k8s'
+                  value: 'deploy-argocd-vcluster-preview'
                 - op: add
                   path: /metadata/labels/prNumber
                   value: '{{number}}'
