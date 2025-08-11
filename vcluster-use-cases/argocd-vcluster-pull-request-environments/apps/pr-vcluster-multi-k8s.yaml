@@ -89,6 +89,11 @@ spec:
         path: vcluster-use-cases/argocd-vcluster-pull-request-environments/kustomize
         repoURL: https://github.com/loft-demos/romeo-app.git
         targetRevision: '{{branch}}'
+        ignoreDifferences:
+        - group: management.loft.sh
+          kind: VirtualClusterInstance
+          jsonPointers:
+          - /spec/parameters
       syncPolicy:
         preserveResourcesOnDeletion: true
         automated:
