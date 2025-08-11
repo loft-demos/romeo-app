@@ -79,8 +79,8 @@ spec:
                 - op: replace
                   path: /spec/parameters
                   value: |
-                    env: "qa"
-                    k8sVersion: "{{k8sVersion}}"
+                    env: qa
+                    k8sVersion: {{k8sVersion}}
                     sleepAfter: "8"
               target:
                 group: management.loft.sh
