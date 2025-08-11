@@ -36,6 +36,7 @@ spec:
         vclusterName: '{{metadata.labels.vclusterName}}'
         vclusterProjectId: '{{metadata.labels.vclusterProjectId}}'
         k8sVersion: '{{metadata.labels.k8sVersion}}'
+        shortSha: '{{head_short_sha}}'
       name: >-
         romeo-app-pr-{{number}}-k8s-{{metadata.labels.k8sVersionDNSLabel}}-preview-app
     spec:
