@@ -42,10 +42,12 @@ data:
       pullRequestComment:
         content: |
           {{- $labels := .app.metadata.labels | default dict -}}
+          {{- $shortSha := get $labels "shortSha" | default "unknown-commit" -}}
           {{- $projectId := get $labels "vclusterProjectId" | default "unknown-project" -}}
           {{- $vclusterName := get $labels "vclusterName" | default "unknown-vcluster" -}}
           {{- $k8sVersion := get $labels "k8sVersion" | default "unknown-k8s-version" -}}
       
+          commit {{$shortSha}}
           **Kubernetes Version:** {{$k8sVersion}}
           **vCluster:** pull request [vCluster pods](https://romeo.us.demo.dev/projects/{{$projectId}}/vclusters/{{$vclusterName}}/pods)  
           **Argo CD:** pull request specific [Argo CD instance]({{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true)  
