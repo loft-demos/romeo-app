@@ -16,3 +16,4 @@ spec:
   parameters: |
     k8sVersion: v1.31.6
     env: 'qa'
+    sleepAfter: '4'
