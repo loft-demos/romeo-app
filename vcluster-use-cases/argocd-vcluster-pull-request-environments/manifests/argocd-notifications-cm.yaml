@@ -9,9 +9,6 @@ data:
   # Define the webhook service for vCluster Platform
   service.webhook.vcluster-platform: |
     url: https://romeo.us.demo.dev
-    retryMax: 8            # default is 3
-    retryWaitMin: 500ms    # default is 1s
-    retryWaitMax: 5s       # default is 5s
     headers:
     - name: Authorization
       value: "Bearer $accessKey"
