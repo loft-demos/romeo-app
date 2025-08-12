@@ -57,6 +57,4 @@ data:
       oncePer: app.status.operationState?.syncResult?.revision
       send:
       - app-deployed
-      when: app.status.operationState != nil
-        and app.status.operationState.phase == 'Succeeded'
-        and app.status.health.status == 'Healthy'
+      when: app.status.sync.status == 'Synced' && app.status.health.status == 'Healthy'
