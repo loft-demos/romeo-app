@@ -87,7 +87,6 @@ spec:
                 - op: replace
                   path: /spec/parameters
                   value: |
-                    env: qa
                     k8sVersion: {{k8sVersion}}
                     sleepAfter: "5"
         path: vcluster-use-cases/argocd-vcluster-pull-request-environments/kustomize
@@ -100,4 +99,5 @@ spec:
         - /spec/parameters
       syncPolicy:
         automated:
+          prune: false
           selfHeal: true
