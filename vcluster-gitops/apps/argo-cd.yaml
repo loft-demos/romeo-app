@@ -3,7 +3,7 @@ apiVersion: management.loft.sh/v1
 metadata:
   name: argocd-romeo
 spec:
-  displayName: Argo CD
+  displayName: Argo CD for vCluster
   description: Argo CD app for running inside a vCluster for Project specific Argo CD
   recommendedApp:
     - virtualcluster
