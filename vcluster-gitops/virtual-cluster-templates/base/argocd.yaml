@@ -20,8 +20,8 @@ spec:
             Argo-CD=https://{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
             GitOps-Repo=https://github.com/loft-demos/{{ .Values.loft.clusterAnnotations.domainPrefix }}-app/
     apps:
-      - name: argocd
-        version: 2.14.10
+      - name: argocd-romeo
+        version: 3.0.12
         parameters: |
           appValues: |-
             global:
