@@ -121,11 +121,7 @@ spec:
         accessPoint:
           ingress: {}
         spaceTemplate:
-          metadata:
-            labels:
-              field.cattle.io/projectId: p-lwz8x9t3
-            annotations:
-              field.cattle.io/projectId: local:p-lwz8x9t3
+          metadata: {}
           objects: |
             apiVersion: v1
             kind: Secret
