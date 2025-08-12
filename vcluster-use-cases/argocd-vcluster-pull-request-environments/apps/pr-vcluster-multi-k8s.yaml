@@ -30,7 +30,9 @@ spec:
                   project: ''
   template:
     metadata:
-      name: romeo-app-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-vcluster
+      name: vcluster-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}
+      labels:
+        k8sVersion: '{{k8sVersion}}'
     spec:
       destination:
         name: in-cluster
@@ -43,15 +45,21 @@ spec:
       project: loft-auth-core
       source:
         kustomize:
-          namePrefix: pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-
           patches:
-            - patch: |-
+            - target:
+                group: management.loft.sh
+                version: v1
+                kind: VirtualClusterInstance
+              patch: |-
+                - op: replace
+                  path: /metadata/name
+                  value: vcluster-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-romeo-app
                 - op: add
                   path: /metadata/labels/vclusterProjectId
                   value: auth-core
                 - op: add
                   path: /metadata/labels/vclusterName
-                  value: pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-vc
+                  value: vcluster-pr-{{number}}-k8s-{{k8sVersionDNSLabel}}-romeo-app
                 - op: add
                   path: /metadata/labels/repo
                   value: romeo-app
@@ -81,14 +89,10 @@ spec:
                   value: |
                     env: qa
                     k8sVersion: {{k8sVersion}}
-                    sleepAfter: "8"
-              target:
-                group: management.loft.sh
-                version: v1
-                kind: VirtualClusterInstance
+                    sleepAfter: "5"
         path: vcluster-use-cases/argocd-vcluster-pull-request-environments/kustomize
         repoURL: https://github.com/loft-demos/romeo-app.git
-        targetRevision: '{{branch}}'
+        targetRevision: 'main'
       ignoreDifferences:
       - group: management.loft.sh
         kind: VirtualClusterInstance
