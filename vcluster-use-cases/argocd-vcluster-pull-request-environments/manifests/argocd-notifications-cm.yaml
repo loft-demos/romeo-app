@@ -8,7 +8,7 @@ data:
     argocdUrl: https://argocd-romeo.us.demo.dev
   # Define the webhook service for vCluster Platform
   service.webhook.vcluster-platform: |
-    url: https://romeo.us.demo.dev
+    url: http://vcluster-wakeup-proxy.argocd.svc.cluster.local
     headers:
     - name: Authorization
       value: "Bearer $accessKey"
