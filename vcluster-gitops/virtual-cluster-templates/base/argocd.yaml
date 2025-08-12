@@ -40,14 +40,6 @@ spec:
                   g, Sales, role:admin
                   g, Engineering, role:admin
             server:
-              podLabels:
-                loft.sh/vc-uniq: "{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}"
-              service:
-                labels:
-                  loft.sh/vc-uniq: "{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}"
-                annotations:
-                  # Avoid GCE NEG on an NGINX Ingress path (prevents cross-controller routing)
-                  cloud.google.com/neg: "false"
               ingress:
                 enabled: true
                 annotations:
@@ -56,20 +48,6 @@ spec:
                   nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
                   nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
                   nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
-                  # Guard: only serve EXACTLY this host to prevent cross‑wiring
-                  nginx.ingress.kubernetes.io/server-snippet: |
-                    if ($host != "{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}") {
-                      return 421;
-                    }
-                  # Prevent stale index.html while leaving hashed assets cacheable
-                  nginx.ingress.kubernetes.io/configuration-snippet: |
-                    if ($request_uri = /) {
-                      add_header Cache-Control "no-store" always;
-                    }
-                    proxy_hide_header X-Accel-Redirect;
-                  # Sticky session, with a unique cookie name per vCluster (optional but nice)
-                  nginx.ingress.kubernetes.io/affinity: "cookie"
-                  nginx.ingress.kubernetes.io/session-cookie-name: "ARGOCD_SESS_{{ .Values.loft.virtualClusterName | replace "-" "_" }}"
                 ingressClassName: "nginx"
                 hostname: {{ .Values.loft.virtualClusterName }}-{{ .Values.loft.project }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
                 tls: true
