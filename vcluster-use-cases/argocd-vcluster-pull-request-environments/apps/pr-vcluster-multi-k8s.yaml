@@ -95,6 +95,5 @@ spec:
         jsonPointers:
         - /spec/parameters
       syncPolicy:
-        preserveResourcesOnDeletion: true
         automated:
           selfHeal: true
