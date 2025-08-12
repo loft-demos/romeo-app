@@ -21,7 +21,7 @@ spec:
             env: prod
   template:
     metadata:
-      name: romeo-app-{{name}}
+      name: romeo-app-{{.name}}
     spec:
       destination:
         namespace: romeo-app-{{.metadata.labels.env}}
