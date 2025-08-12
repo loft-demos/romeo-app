@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: proxy
-          image: ghcr.io/loft-demos/vcluster-wakeup-proxy:sha-454e918
+          image: ghcr.io/loft-demos/vcluster-wakeup-proxy:sha-2bedde9
           ports: [{ containerPort: 8080 }]
           env:
             - name: UPSTREAM_BASE
