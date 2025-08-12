@@ -35,10 +35,10 @@ data:
     github:
       repoURLPath: "https://github.com/loft-demos/romeo-app"
       revisionPath: "{{.app.spec.source.targetRevision}}"
-      status:
-        state: success
-        label: "argo-cd/{{.app.metadata.name}}"
-        targetURL: "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true"
+      # status:
+      #   state: success
+      #   label: "argo-cd/{{.app.metadata.name}}"
+      #   targetURL: "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true"
       pullRequestComment:
         content: |
           {{- $labels := .app.metadata.labels | default dict -}}
