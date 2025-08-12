@@ -1,12 +1,12 @@
 kind: App
 apiVersion: management.loft.sh/v1
 metadata:
-  name: argocd
+  name: argocd-romeo
 spec:
   displayName: Argo CD
-  description: Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes
+  description: Argo CD app for running inside a vCluster for Project specific Argo CD
   recommendedApp:
-    - cluster
+    - virtualcluster
   defaultNamespace: argocd
   icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
   config:
@@ -27,12 +27,12 @@ spec:
             hosts:
             - my-domain.com
   versions:
-    - version: 2.14.10
+    - version: 3.0.12
       icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
       config:
         chart:
           name: argo-cd
-          version: 7.8.26
+          version: 8.2.7
           repoURL: https://argoproj.github.io/argo-helm
         values: '{{ .Values.appValues }}'
       parameters:
