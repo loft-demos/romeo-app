@@ -39,6 +39,7 @@ spec:
         shortSha: '{{head_short_sha}}'
       name: >-
         romeo-app-pr-{{number}}-k8s-{{metadata.labels.k8sVersionDNSLabel}}-preview-app
+      finalizers: []
     spec:
       destination:
         namespace: preview-hello-world-app
@@ -77,6 +78,7 @@ spec:
         preserveResourcesOnDeletion: true
         automated:
           selfHeal: true
+          prune: false
         retry:
           backoff:
             duration: 40s
