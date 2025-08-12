@@ -4,6 +4,8 @@ metadata:
   name: vcluster-env-config
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
     - clusters:
         selector:
@@ -22,14 +24,14 @@ spec:
       name: romeo-app-{{name}}
     spec:
       destination:
-        namespace: romeo-app-{{metadata.labels.env}}
-        server: '{{server}}'
+        namespace: romeo-app-{{.metadata.labels.env}}
+        server: '{{.server}}'
       info:
         - name: GitHub Repo
           value: https://github.com/loft-demos/romeo-app/
-      project: 'loft-{{metadata.labels.team}}'
+      project: 'loft-{{ index .metadata.labels "demos.loft.sh/project" }}'
       source:
-        path: vcluster-use-cases/argocd-vcluster-add-ons/manifests/{{metadata.labels.env}}/
+        path: vcluster-use-cases/argocd-vcluster-add-ons/manifests/{{.metadata.labels.env}}/
         repoURL: https://github.com/loft-demos/romeo-app.git
         targetRevision: main
       syncPolicy:
