@@ -4,6 +4,8 @@ metadata:
   name: pr-vcluster-multi-k8s
   namespace: argocd
 spec:
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   generators:
     - matrix:
         generators:
