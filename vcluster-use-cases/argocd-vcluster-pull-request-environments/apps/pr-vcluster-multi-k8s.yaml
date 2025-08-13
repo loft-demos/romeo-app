@@ -22,7 +22,7 @@ spec:
                   - 'deploy/argocd-vcluster-preview'
                 owner: loft-demos
                 repo: romeo-app
-              requeueAfterSeconds: 7200
+              requeueAfterSeconds: 30
               template:
                 metadata: {}
                 spec:
