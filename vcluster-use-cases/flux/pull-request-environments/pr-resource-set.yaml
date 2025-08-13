@@ -128,7 +128,7 @@ spec:
       eventSources:
         - kind: HelmRelease
           name: '*'
-          namespace: "loft-auth-core-v-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>"
+          namespace: "auth-core-v-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>"
     ---
     # Alert used to add comment to pull request
     # It is created in the p-auth-core namespace because injecting the GitHub PAT Secret into the vCluster namespace takes too long
