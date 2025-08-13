@@ -88,7 +88,7 @@ spec:
                   path: /spec/parameters
                   value: |
                     k8sVersion: {{k8sVersion}}
-                    sleepAfter: "5"
+                    sleepAfter: "4"
         path: vcluster-use-cases/argocd-vcluster-pull-request-environments/kustomize
         repoURL: https://github.com/loft-demos/romeo-app.git
         targetRevision: 'main'
