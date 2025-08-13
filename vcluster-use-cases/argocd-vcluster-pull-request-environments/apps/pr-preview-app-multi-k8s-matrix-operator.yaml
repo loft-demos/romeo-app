@@ -16,7 +16,7 @@ spec:
                   - 'deploy/argocd-vcluster-preview'
                 owner: loft-demos
                 repo: romeo-app
-              requeueAfterSeconds: 30
+              requeueAfterSeconds: 36000
           - clusters:
               selector:
                 matchExpressions:
