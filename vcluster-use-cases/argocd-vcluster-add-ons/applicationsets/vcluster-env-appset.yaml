@@ -9,28 +9,16 @@ spec:
   generators:
     - clusters:
         selector:
-          matchExpressions:
-            - key: env
-              operator: In
-              values: ["dev"]
-            - key: prNumber
-              operator: DoesNotExist
+          matchLabels:
+            env: dev
     - clusters:
         selector:
-          matchExpressions:
-            - key: env
-              operator: In
-              values: ["qa"]
-            - key: prNumber
-              operator: DoesNotExist
+          matchLabels:
+            env: qa
     - clusters:
         selector:
-          matchExpressions:
-            - key: env
-              operator: In
-              values: ["prod"]
-            - key: prNumber
-              operator: DoesNotExist
+          matchLabels:
+            env: prod
   template:
     metadata:
       name: romeo-app-{{.name}}
