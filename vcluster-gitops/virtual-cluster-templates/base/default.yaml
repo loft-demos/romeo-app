@@ -31,9 +31,7 @@ spec:
   versions:
     - version: 1.0.0
       template:
-        metadata:
-          annotations:
-            sleepmode.loft.sh/ignore-user-agents: argo*
+        metadata: {}
         instanceTemplate:
           metadata:
             annotations:
