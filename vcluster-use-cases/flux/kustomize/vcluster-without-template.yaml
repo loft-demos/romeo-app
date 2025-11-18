@@ -1,0 +1,118 @@
+kind: VirtualClusterInstance
+apiVersion: management.loft.sh/v1
+metadata:
+  name: vcluster-deployed-with-flux
+  namespace: p-vcluster-flux-demo
+spec:
+  displayName: vCluster Deployed with Flux
+  owner:
+    team: loft-admins
+  template:
+    metadata: {}
+    instanceTemplate:
+      metadata: {}
+    access:
+      defaultClusterRole: view
+      rules:
+        - teams:
+            - loft-admins
+          clusterRole: cluster-admin
+    pro:
+      enabled: true
+    helmRelease:
+      chart:
+        version: 0.24.0
+      values: |
+        sync:
+          toHost:
+            ingresses:
+              enabled: true
+
+        exportKubeConfig:
+          context: loft
+          server: https://vcluster-deployed-with-flux.vcluster-flux-demo-v-vcluster-deployed-with-flux:443
+          secret:
+            name: vcluster-flux-kubeconfig
+
+        controlPlane:
+          coredns:
+            enabled: true
+            embedded: true
+          backingStore:
+            etcd:
+              embedded:
+                enabled: true
+    accessPoint:
+      ingress: {}
+    spaceTemplate:
+      metadata: {}
+      objects: |-
+        ---
+        apiVersion: kustomize.toolkit.fluxcd.io/v1
+        kind: Kustomization
+        metadata:
+          name: flux-deployed-apps
+        spec:
+          interval: 1h
+          retryInterval: 3m
+          timeout: 5m
+          prune: true
+          wait: true
+          dependsOn:
+            - name: vcluster-flux-kustomize
+              namespace: p-vcluster-flux-demo
+          path: ./vcluster-use-cases/flux/flux-deploy-apps
+          sourceRef:
+            kind: GitRepository
+            name: vcluster-flux-demo
+            namespace: p-vcluster-flux-demo
+          patches:
+            - target:
+                kind: HelmRepository
+              patch: |
+                - op: add
+                  path: /metadata/namespace
+                  value:
+                    vcluster-flux-demo-v-vcluster-deployed-with-flux
+            - target:
+                kind: HelmRelease
+              patch: |
+                - op: add
+                  path: /metadata/namespace
+                  value:
+                    vcluster-flux-demo-v-vcluster-deployed-with-flux
+                - op: add
+                  path: /spec/kubeConfig
+                  value:
+                    secretRef:
+                      name: vcluster-flux-kubeconfig
+                      key: config
+                - op: add
+                  path: /spec/values
+                  value:
+                    ui:
+                      message: "deployed to vcluster-deployed-with-flux test-1"
+                - op: add
+                  path: /spec/values/ingress
+                  value:
+                    enabled: true
+                    hosts:
+                      - host: podinfo-vcluster-deployed-with-flux-{REPLACE_VCLUSTER_NAME}.{REPLACE_BASE_DOMAIN}
+                        paths:
+                          - path: /
+                            pathType: ImplementationSpecific
+  clusterRef:
+    cluster: loft-cluster
+  access:
+    - name: instance-access
+      verbs:
+        - create
+        - use
+        - get
+      subresources:
+        - logs
+        - kubeconfig
+      teams:
+        - api-framework
+        - loft-admins
+  networkPeer: true

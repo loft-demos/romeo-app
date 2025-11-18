@@ -1,0 +1,13 @@
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-github
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  ignoreCrossplaneConstraints: false
+  package: crossplane-contrib/provider-upjet-github:v0.18.4
+  packagePullPolicy: IfNotPresent
+  revisionActivationPolicy: Automatic
+  revisionHistoryLimit: 1
+  skipDependencyResolution: false

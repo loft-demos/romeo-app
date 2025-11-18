@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: komoplane-helm-app
+  namespace: argocd
+  labels:
+    demos.loft.sh: komoplane
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    # server is the url of the cluster as selected by the spec above
+    server: https://kubernetes.default.svc
+    namespace: crossplane-system
+  project: default
+  source:
+    chart: komoplane
+    repoURL: https://helm-charts.komodor.io
+    targetRevision: 0.1.6
+    helm:
+      valuesObject:
+        ingress:
+          enabled: true
+          className: "nginx"
+          annotations: {}
+          hosts:
+            - host: komoplane-{REPLACE_VCLUSTER_NAME}.{REPLACE_BASE_DOMAIN}
+              paths:
+                - path: /
+                  pathType: ImplementationSpecific
+          tls:
+            - hosts:
+                - komoplane-{REPLACE_VCLUSTER_NAME}.{REPLACE_BASE_DOMAIN}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - Replace=true
+    retry:
+      limit: 5 # number of failed sync attempt retries; unlimited number of attempts if less than 0
+      backoff:
+        duration: 20s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+        factor: 2 # a factor to multiply the base duration after each failed retry
+        maxDuration: 3m
