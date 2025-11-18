@@ -1,0 +1,59 @@
+# Default values for helloWorld.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+image:
+  repository: ghcr.io/loft-demos/REPO_NAME
+  pullPolicy: IfNotPresent
+  # use Chart appVersion if not set as value
+  tag: ""
+  args:
+    text: echo v1
+imagePullSecrets:
+  - name: ghcr-login-secret
+nameOverride: ""
+fullnameOverride: ""
+deployment:
+  # used to specify commit sha in CI job
+  commit: 62c016441f71377512dd6acbaa88a791cbbf5d1f
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: echo-sa
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext: {}
+
+autoscaling:
+  enabled: false
+service:
+  type: ClusterIP
+  port: 8080
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/tls-acme: 'true'
+    nginx.ingress.kubernetes.io/ssl-passthrough: 'false'
+    nginx.ingress.kubernetes.io/backend-protocol: 'HTTP'
+  hosts:
+    - host: REPO_NAME-REPLACE_LOFT_DEMO_DOMAIN
+  tls:
+    - hosts:
+        - REPO_NAME-REPLACE_LOFT_DEMO_DOMAIN
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
