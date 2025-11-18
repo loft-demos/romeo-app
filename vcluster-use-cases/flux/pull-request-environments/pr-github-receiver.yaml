@@ -1,0 +1,13 @@
+apiVersion: notification.toolkit.fluxcd.io/v1
+kind: Receiver
+metadata:
+  name: pr-github-receiver
+  namespace: p-auth-core
+spec:
+  type: github
+  secretRef:
+    name: pr-github-receiver-token
+  resources:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSetInputProvider
+      name: preview-pull-requests

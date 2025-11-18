@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base/
+
+patches:
+  - path: patch-non-versioned.yaml
+    target:
+      kind: VirtualClusterTemplate
+      version: v1
+      labelSelector: patchType=non-versioned
+  - target:
+      group: management.loft.sh
+      version: v1
+      kind: VirtualClusterTemplate
+      labelSelector: patchType=versioned
+    path: patch-versioned.yaml

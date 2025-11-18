@@ -1,0 +1,14 @@
+---
+apiVersion: management.loft.sh/v1
+kind: VirtualClusterInstance
+metadata:
+  name: vcluster-with-flux
+  namespace: p-vcluster-flux-demo
+spec:
+  owner:
+    team: api-framework
+  templateRef:
+    name: vcluster-flux-template
+    version: 1.0.x
+  clusterRef:
+    cluster: loft-cluster

@@ -1,0 +1,28 @@
+- op: replace
+  path: /spec/versions/0/template/helmRelease/chart/version
+  value: "0.30.0"
+  # insert k8sVersion at index 0
+- op: add
+  path: /spec/versions/0/parameters/0
+  value:
+    variable: k8sVersion
+    label: k8sVersion
+    description: Please select Kubernetes version
+    type: string
+    options:
+      - v1.34.1
+      - v1.33.5
+      - v1.32.9
+      - v1.31.13
+    defaultValue: v1.33.5
+    section: Kubernetes Environment
+# insert sleepAfter at index 1
+- op: add
+  path: /spec/versions/0/parameters/1
+  value:
+    variable: sleepAfter
+    label: Sleep After Inactivity (minutes)
+    type: string
+    options: ["15", "30", "45", "60", "120"]
+    defaultValue: "30"
+    section: Deployment Environment

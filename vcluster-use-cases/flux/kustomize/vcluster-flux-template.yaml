@@ -1,0 +1,128 @@
+kind: VirtualClusterTemplate
+apiVersion: management.loft.sh/v1
+metadata:
+  name: vcluster-flux-template
+  labels:
+    patchType: versioned
+  annotations:
+    vcluster.com/template-icon: server.svg
+spec:
+  displayName: Virtual Cluster Flux Template
+  description: This virtual cluster template is configured to integrate the resulting vCluster with Flux by creating a Flux KubeConfig Secret and then automatically using Flux to deploy a `HelmRelease` based application into the vCluster.
+  owner:
+    team: loft-admins
+  template:
+    metadata: {}
+    instanceTemplate:
+      metadata: {}
+    pro: {}
+    helmRelease:
+      chart:
+        version: 0.23.0
+      values: |-
+        sync:
+          toHost:
+            ingresses:
+              enabled: true
+    accessPoint:
+      ingress: {}
+    spaceTemplate:
+      metadata: {}
+  versions:
+    - version: 1.0.0
+      template:
+        metadata: {}
+        instanceTemplate:
+          metadata:
+            annotations:
+              loft.sh/custom-links: |-
+                Flux-App=https://podinfo-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                Helm-Dashboard=https://helm-dashboard-{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
+        apps:
+          - name: helm-dashboard
+            namespace: helm-dashboard
+        pro:
+          enabled: true
+        helmRelease:
+          chart:
+            version: 0.30.0
+          values: |
+            # Instead of exporting the Kube Config, a Bash App is used below
+            # exportKubeConfig:
+            #   context: loft
+            #   server: https://{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.virtualClusterNamespace }}:443
+            #   secret:
+            #     name: 'flux-kubeconfig'
+            
+            sleepMode:
+              enabled: true
+              autoSleep:
+                afterInactivity: "{{ .Values.sleepAfter }}m"
+              timeZone: America/New_York
+              autoWakeup:
+                schedule: 11 7-17 * * 1-5
+            external:
+              platform:
+                autoDelete:
+                  afterInactivity: 1800000
+                  
+            sync:
+              toHost:
+                ingresses:
+                  enabled: true
+
+            controlPlane:
+              # Use an embedded managed etcd server instead of using the default SQLite backend
+              backingStore:
+                etcd:
+                  embedded:
+                    enabled: true
+              coredns:
+                embedded: true
+              distro:
+                k8s:
+                  image:
+                    tag: "{{ .Values.k8sVersion }}"
+        accessPoint:
+          ingress: {}
+        spaceTemplate:
+          metadata: {}
+          apps: # this bash app will create a Kube Config for Flux that uses the vCluster Platform proxied URL
+            - name: generate-vcluster-kubeconfig
+      parameters:
+        - variable: env
+          label: Deployment Environment
+          description: >-
+            Environment for deployments for this vCluster used with defaultValues of Flux ResourceSetInputProvider
+          options:
+            - dev
+            - qa
+            - prod
+          defaultValue: dev
+          section: Deployment Environment
+    - version: 0.0.0
+      template:
+        metadata: {}
+        instanceTemplate:
+          metadata: {}
+        pro:
+          enabled: true
+        helmRelease:
+          chart:
+            version: 0.20.1
+          values: |-
+            sync:
+              toHost:
+                ingresses:
+                  enabled: true
+        accessPoint:
+          ingress: {}
+        spaceTemplate:
+          metadata: {}
+  access:
+    - verbs:
+        - '*'
+      subresources:
+        - '*'
+      users:
+        - admin

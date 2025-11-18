@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd
+data:
+  context: |
+    argocdUrl: https://argocd-{REPLACE_VCLUSTER_NAME}.{REPLACE_BASE_DOMAIN}
+  # Define the webhook service for vCluster Platform
+  service.webhook.vcluster-platform: |
+    url: http://vcluster-wakeup-proxy.argocd.svc.cluster.local
+    headers:
+    - name: Authorization
+      value: "Bearer $accessKey"
+    - name: User-Agent
+      value: "vcluster-wakeup"
+  # Template for waking up the vCluster via vCluster Platform API
+  template.wakeup-vcluster: |
+    webhook:
+      vcluster-platform:
+        method: POST
+        path: /kubernetes/project/{{ index .app.metadata.labels "vclusterProjectId" }}/virtualcluster/{{ index .app.metadata.labels "vclusterName" }}
+  # Trigger wake-up when app becomes OutOfSync
+  trigger.wakeup-vcluster: |
+    - description: "Wake vCluster when app is OutOfSync"
+      when: app.status.sync.status == 'OutOfSync'
+      send: [wakeup-vcluster]
+  service.github: |
+    appID: $githubAppID
+    installationID: $githubAppInstallationID
+    privateKey: $githubAppPrivateKey
+  template.app-deployed: |
+    message: |
+      Application {{.app.metadata.name}} is now running new version of deployments manifests.
+    github:
+      repoURLPath: "https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}"
+      revisionPath: "{{.app.spec.source.targetRevision}}"
+      pullRequestComment:
+        content: |
+          {{- $labels := .app.metadata.labels | default dict -}}
+          {{- $shortSha := get $labels "shortSha" | default "unknown-commit" -}}
+          {{- $projectId := get $labels "vclusterProjectId" | default "unknown-project" -}}
+          {{- $vclusterName := get $labels "vclusterName" | default "unknown-vcluster" -}}
+          {{- $k8sVersion := get $labels "k8sVersion" | default "unknown-k8s-version" -}}
+
+          commit {{$shortSha}}
+          **Kubernetes Version:** {{$k8sVersion}}
+          **vCluster:** pull request [vCluster pods](https://{REPLACE_VCLUSTER_NAME}.{REPLACE_BASE_DOMAIN}/projects/{{$projectId}}/vclusters/{{$vclusterName}}/pods)  
+          **Argo CD:** pull request [Argo CD PR deployment Application]({{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true)  
+          **Deployed App:** application for this pull request has been deployed at: [{{.app.metadata.name}}](https://{{$vclusterName}}.{REPLACE_BASE_DOMAIN}/)
+  trigger.on-deployed: |
+    - description: Application is synced and healthy. Triggered once per commit.
+      oncePer: app.status.operationState?.syncResult?.revision
+      send:
+      - app-deployed
+      when: app.status.operationState != nil
+        and app.status.operationState.phase == 'Succeeded'
+        and app.status.health.status == 'Healthy'
