@@ -32,8 +32,8 @@ spec:
               enabled: true
           autoNodes:
             dynamic:
-              - name: gcp-{REPLACE_VCLUSTER_NAME}-node-pool
-                provider: gcp-compute-{REPLACE_VCLUSTER_NAME}-node-provider
+              - name: gcp-romeo-node-pool
+                provider: gcp-compute-romeo-node-provider
                 limits:
                   cpu: '30'
                 {{if .Values.disableSpot}}

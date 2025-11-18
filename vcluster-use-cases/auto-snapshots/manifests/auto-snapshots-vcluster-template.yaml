@@ -207,7 +207,7 @@ spec:
               kubernetes.io/ingress.class: nginx
           spec:
             rules:
-              - host: demo-web-{REPLACE_VCLUSTER_NAME}.{REPLACE_BASE_DOMAIN}
+              - host: demo-web-romeo.us.demo.dev
                 http:
                   paths:
                     - path: /
@@ -239,9 +239,9 @@ spec:
                     type: oci
                     oci:
                       credential:
-                        secretName: {REPLACE_ORG_NAME}-ghcr-write-pat
+                        secretName: loft-demos-ghcr-write-pat
                         secretNamespace: {{ .Values.loft.virtualClusterNamespace }}
-                      repository: oci://ghcr.io/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}
+                      repository: oci://ghcr.io/loft-demos/romeo-app
             sleepMode:
               enabled: true
               autoSleep:
@@ -278,11 +278,11 @@ spec:
             apiVersion: v1
             kind: Secret
             metadata:
-              name: {REPLACE_ORG_NAME}-ghcr-write-pat
+              name: loft-demos-ghcr-write-pat
               labels:
-                loft.sh/project-secret-name: {REPLACE_ORG_NAME}-ghcr-write-pat
-                org: {REPLACE_ORG_NAME}
-                repo: {REPLACE_REPO_NAME}
+                loft.sh/project-secret-name: loft-demos-ghcr-write-pat
+                org: loft-demos
+                repo: romeo-app
             type: Opaque
       parameters:
         - variable: env

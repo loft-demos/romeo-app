@@ -10,8 +10,8 @@ spec:
           appSecretName: loft-demo-org-cred
           labels:
             - create-prvcluster
-          owner: {REPLACE_ORG_NAME}
-          repo: {REPLACE_REPO_NAME}
+          owner: loft-demos
+          repo: romeo-app
         requeueAfterSeconds: 30
         template:
           metadata: {}
@@ -20,20 +20,20 @@ spec:
             project: ''
   template:
     metadata:
-      name: {REPLACE_REPO_NAME}-pr-{{number}}
+      name: romeo-app-pr-{{number}}
     spec:
       destination:
         name: in-cluster
         namespace: p-api-framework
       info:
         - name: PRvCluster Argo CD URL
-          value: https://argocd-{REPLACE_REPO_NAME}-pr-{{number}}.{REPLACE_BASE_DOMAIN}
+          value: https://argocd-romeo-app-pr-{{number}}.us.demo.dev
         - name: GitHub PR
-          value: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}/pull/{{number}}
+          value: https://github.com/loft-demos/romeo-app/pull/{{number}}
       project: default
       source:
         kustomize:
-          namePrefix: {REPLACE_REPO_NAME}-pr-{{number}}-
+          namePrefix: romeo-app-pr-{{number}}-
           patches:
             - patch: |-
                 - op: replace
@@ -43,7 +43,7 @@ spec:
                 kind: PullRequestEnvironment
                 name: vcluster
         path: vcluster-use-cases/argocd-vcluster-pull-request-environments/internal/kustomize
-        repoURL: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}.git
+        repoURL: https://github.com/loft-demos/romeo-app.git
         targetRevision: '{{head_sha}}'
       syncPolicy:
         automated:
