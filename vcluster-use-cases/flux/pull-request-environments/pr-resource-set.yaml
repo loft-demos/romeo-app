@@ -125,8 +125,8 @@ spec:
       providerRef:
         name: github-status
       eventSources:
-        - kind: HelmRelease
-          name: '*'
+        - kind: Kustomization
+          name: 'pr-<< inputs.id >>-k8s-<< $v.name >>-flux-app'
           namespace: "auth-core-v-pr-<< inputs.id >>-k8s-<< $v.name >>-flux"
     ---
     # Alert used to add comment to pull request
@@ -140,8 +140,8 @@ spec:
       providerRef:
         name: github-dispatch
       eventSources:
-        - kind: HelmRelease
-          name: '*'
+        - kind: Kustomization
+          name: 'pr-<< inputs.id >>-k8s-<< $v.name >>-flux-app'
           namespace: "auth-core-v-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>"
     ---
     # Kustomization wrapper for HelmRelease to allow use of dependsOn
