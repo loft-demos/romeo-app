@@ -127,7 +127,7 @@ spec:
       eventSources:
         - kind: Kustomization
           name: 'pr-<< inputs.id >>-k8s-<< $v.name >>-flux-app'
-          namespace: "auth-core-v-pr-<< inputs.id >>-k8s-<< $v.name >>-flux"
+          namespace: p-auth-core
     ---
     # Alert used to add comment to pull request
     # It is created in the p-auth-core namespace because injecting the GitHub PAT Secret into the vCluster namespace takes too long
@@ -142,7 +142,7 @@ spec:
       eventSources:
         - kind: Kustomization
           name: 'pr-<< inputs.id >>-k8s-<< $v.name >>-flux-app'
-          namespace: "auth-core-v-romeo-app-flux-preview-<< inputs.id >>-k8s-<< $v.name >>"
+          namespace: p-auth-core
     ---
     # Kustomization wrapper for HelmRelease to allow use of dependsOn
     apiVersion: kustomize.toolkit.fluxcd.io/v1
