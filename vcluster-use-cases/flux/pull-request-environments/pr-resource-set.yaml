@@ -140,9 +140,9 @@ spec:
       providerRef:
         name: github-dispatch
       eventSources:
-        - kind: Kustomization
-          name: 'pr-<< inputs.id >>-k8s-<< $v.name >>-flux-app'
-          namespace: p-auth-core
+        - kind: HelmRelease
+          name: '*'
+          namespace: auth-core-v-pr-<< inputs.id >>-k8s-<< $v.name >>-flux
     ---
     # Kustomization wrapper for HelmRelease to allow use of dependsOn
     apiVersion: kustomize.toolkit.fluxcd.io/v1
