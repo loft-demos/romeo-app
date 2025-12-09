@@ -25,6 +25,10 @@ spec:
   requireTemplate:
     disabled: true
   members:
+    - kind: Team
+      group: storage.loft.sh
+      name: auth-core
+      clusterRole: loft-management-project-user
     - kind: User
       group: storage.loft.sh
       name: '*'
