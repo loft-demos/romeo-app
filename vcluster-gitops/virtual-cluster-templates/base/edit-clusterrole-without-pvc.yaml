@@ -1,0 +1,466 @@
+kind: VirtualClusterTemplate
+apiVersion: management.loft.sh/v1
+metadata:
+  name: edit-clusterrole-without-pvd-template
+  annotations:
+    vcluster.com/template-icon: vcluster-box.svg
+  labels:
+    patchType: versioned
+spec:
+  displayName: Virtual Cluster Template Edit Cluster Role
+  description: This virtual cluster template deploys a vCluster with a customer edit clusterrole that doesn't allow PVC permissions.
+  owner:
+    team: loft-admins
+  template:
+    metadata: {}
+    instanceTemplate:
+      metadata: {}
+    pro: {}
+    helmRelease:
+      chart:
+        version: 0.24.0
+      values: |-
+        sync:
+          toHost:
+            ingresses:
+              enabled: true
+
+        # Checkout https://vcluster.com/pro/docs/ for more config options
+    accessPoint:
+      ingress: {}
+    spaceTemplate:
+      metadata: {}
+  versions:
+    - version: 1.0.0
+      template:
+        metadata:
+          annotations:
+            sleepmode.loft.sh/ignore-user-agents: argo*
+        instanceTemplate:
+          metadata:
+            annotations:
+              loft.sh/custom-links: >-
+                Helm-Dashboard=https://helm-dashboard-{{ .Values.loft.virtualClusterName }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
+            labels:
+              env: '{{ .Values.env }}'
+              demos.vcluster.com/project: '{{ .Values.loft.project }}'
+              demos.vcluster.com/owner: '{{ or (and .Values.loft.user .Values.loft.user.name) (and .Values.loft.team .Values.loft.team.name) }}'
+        apps:
+          - name: helm-dashboard
+            namespace: helm-dashboard
+        objects: |-
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRole
+          metadata:
+            name: edit-without-pvc
+          rules:
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - ''
+              resources:
+                - pods/attach
+                - pods/exec
+                - pods/portforward
+                - pods/proxy
+                - secrets
+                - services/proxy
+            - verbs:
+                - impersonate
+              apiGroups:
+                - ''
+              resources:
+                - serviceaccounts
+            - verbs:
+                - create
+                - delete
+                - deletecollection
+                - patch
+                - update
+              apiGroups:
+                - ''
+              resources:
+                - pods
+                - pods/attach
+                - pods/exec
+                - pods/portforward
+                - pods/proxy
+            - verbs:
+                - create
+              apiGroups:
+                - ''
+              resources:
+                - pods/eviction
+            - verbs:
+                - create
+                - delete
+                - deletecollection
+                - patch
+                - update
+              apiGroups:
+                - ''
+              resources:
+                - configmaps
+                - events
+                - persistentvolumeclaims
+                - replicationcontrollers
+                - replicationcontrollers/scale
+                - secrets
+                - serviceaccounts
+                - services
+                - services/proxy
+            - verbs:
+                - create
+              apiGroups:
+                - ''
+              resources:
+                - serviceaccounts/token
+            - verbs:
+                - create
+                - delete
+                - deletecollection
+                - patch
+                - update
+              apiGroups:
+                - apps
+              resources:
+                - daemonsets
+                - deployments
+                - deployments/rollback
+                - deployments/scale
+                - replicasets
+                - replicasets/scale
+                - statefulsets
+                - statefulsets/scale
+            - verbs:
+                - create
+                - delete
+                - deletecollection
+                - patch
+                - update
+              apiGroups:
+                - autoscaling
+              resources:
+                - horizontalpodautoscalers
+            - verbs:
+                - create
+                - delete
+                - deletecollection
+                - patch
+                - update
+              apiGroups:
+                - batch
+              resources:
+                - cronjobs
+                - jobs
+            - verbs:
+                - create
+                - delete
+                - deletecollection
+                - patch
+                - update
+              apiGroups:
+                - extensions
+              resources:
+                - daemonsets
+                - deployments
+                - deployments/rollback
+                - deployments/scale
+                - ingresses
+                - networkpolicies
+                - replicasets
+                - replicasets/scale
+                - replicationcontrollers/scale
+            - verbs:
+                - create
+                - delete
+                - deletecollection
+                - patch
+                - update
+              apiGroups:
+                - policy
+              resources:
+                - poddisruptionbudgets
+            - verbs:
+                - create
+                - delete
+                - deletecollection
+                - patch
+                - update
+              apiGroups:
+                - networking.k8s.io
+              resources:
+                - ingresses
+                - networkpolicies
+            - verbs:
+                - create
+                - delete
+                - deletecollection
+                - get
+                - list
+                - patch
+                - update
+                - watch
+              apiGroups:
+                - coordination.k8s.io
+              resources:
+                - leases
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - ''
+              resources:
+                - configmaps
+                - endpoints
+                - pods
+                - replicationcontrollers
+                - replicationcontrollers/scale
+                - serviceaccounts
+                - services
+                - services/status
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - ''
+              resources:
+                - bindings
+                - events
+                - limitranges
+                - namespaces/status
+                - pods/log
+                - pods/status
+                - replicationcontrollers/status
+                - resourcequotas
+                - resourcequotas/status
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - ''
+              resources:
+                - namespaces
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - discovery.k8s.io
+              resources:
+                - endpointslices
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - apps
+              resources:
+                - controllerrevisions
+                - daemonsets
+                - daemonsets/status
+                - deployments
+                - deployments/scale
+                - deployments/status
+                - replicasets
+                - replicasets/scale
+                - replicasets/status
+                - statefulsets
+                - statefulsets/scale
+                - statefulsets/status
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - autoscaling
+              resources:
+                - horizontalpodautoscalers
+                - horizontalpodautoscalers/status
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - batch
+              resources:
+                - cronjobs
+                - cronjobs/status
+                - jobs
+                - jobs/status
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - extensions
+              resources:
+                - daemonsets
+                - daemonsets/status
+                - deployments
+                - deployments/scale
+                - deployments/status
+                - ingresses
+                - ingresses/status
+                - networkpolicies
+                - replicasets
+                - replicasets/scale
+                - replicasets/status
+                - replicationcontrollers/scale
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - policy
+              resources:
+                - poddisruptionbudgets
+                - poddisruptionbudgets/status
+            - verbs:
+                - get
+                - list
+                - watch
+              apiGroups:
+                - networking.k8s.io
+              resources:
+                - ingresses
+                - ingresses/status
+                - networkpolicies
+        pro:
+          enabled: true
+        helmRelease:
+          chart:
+            version: 0.26.0
+          values: |
+            sleepMode:
+              enabled: true
+              autoSleep:
+                afterInactivity: "{{ .Values.sleepAfter }}m"
+              timeZone: '{{ .Values.loft.clusterAnnotations.sleepTimeZone }}'
+              autoWakeup:
+                schedule: 11 7-17 * * 1-5
+            external:
+              platform:
+                autoDelete:
+                  afterInactivity: 1800000
+                  
+            sync:
+              toHost:
+                pods:
+                  patches:
+                    - path: metadata.annotations
+                      expression: 'value["demos.vcluster.com/project"]="{{ .Values.loft.project }}";value'
+                    - path: metadata.labels
+                      expression: 'value["demos.vcluster.com/owner"]="{{ or (and .Values.loft.user .Values.loft.user.name) (and .Values.loft.team .Values.loft.team.name) }}";value'
+                ingresses:
+                  enabled: true
+                secrets:
+                  all: true
+            controlPlane:
+              advanced:
+                workloadServiceAccount:
+                  enabled: true
+                  imagePullSecrets:
+                  - name: "hook-image-pull-secret"
+              distro:
+                k8s:
+                  image:
+                    tag: "{{ .Values.k8sVersion }}"
+              service:
+                labels:
+                  env: '{{ .Values.env }}'
+                  demos.vcluster.com/project: '{{ .Values.loft.project }}'
+                  demos.vcluster.com/owner: '{{ or (and .Values.loft.user .Values.loft.user.name) (and .Values.loft.team .Values.loft.team.name) }}'
+              statefulSet:
+                {{if .Values.disableControlPlaneSleep}}
+                annotations:
+                  sleepmode.loft.sh/exclude: 'true'
+                {{end}}
+                labels:
+                  env: '{{ .Values.env }}'
+                  demos.vcluster.com/project: '{{ .Values.loft.project }}'
+                  demos.vcluster.com/owner: '{{ or (and .Values.loft.user .Values.loft.user.name) (and .Values.loft.team .Values.loft.team.name) }}'
+                pods:
+                  labels:
+                    env: '{{ .Values.env }}'
+                    demos.vcluster.com/project: '{{ .Values.loft.project }}'
+                    demos.vcluster.com/owner: '{{ or (and .Values.loft.user .Values.loft.user.name) (and .Values.loft.team .Values.loft.team.name) }}'
+                resources:
+                  # Limits are resource limits for the container
+                  limits:
+                    ephemeral-storage: 8Gi
+                    memory: 2Gi
+                    cpu: 1
+              # Use an embedded managed etcd server instead of using the default SQLite backend
+              backingStore:
+                etcd:
+                  embedded:
+                    enabled: true
+              coredns:
+                embedded: true
+
+            # Checkout https://vcluster.com/pro/docs/ for more config options
+        accessPoint:
+          ingress: {}
+        spaceTemplate:
+          metadata: {}
+          objects: |
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: hook-image-pull-secret
+              labels:
+                loft.sh/project-secret-name: ghcr-login-secret
+            data:
+              .dockerconfigjson: e30K
+            type: kubernetes.io/dockerconfigjson
+      parameters:
+        - variable: disableControlPlaneSleep
+          label: Disable vCluster Control Plane Sleep
+          description: Adds an annotation to the vCluster control plane StatefulSet so the control plane pods don't sleep.
+          type: boolean
+          defaultValue: 'false'
+          section: Deployment Environment
+        - variable: env
+          label: Deployment Environment
+          description: >-
+            Environment for deployments for this vCluster used as cluster label
+            for Argo CD ApplicationSet Cluster Generator
+          options:
+            - dev
+            - qa
+            - prod
+          defaultValue: dev
+          section: Deployment Environment
+    - template:
+        metadata: {}
+        instanceTemplate:
+          metadata: {}
+        pro:
+          enabled: true
+        helmRelease:
+          chart:
+            version: 0.26.0
+          values: |-
+            sync:
+              toHost:
+                ingresses:
+                  enabled: true
+            # Checkout https://vcluster.com/pro/docs/ for more config options
+        accessPoint:
+          ingress: {}
+        spaceTemplate:
+          metadata: {}
+      version: 0.0.0
+  access:
+    - verbs:
+        - '*'
+      subresources:
+        - '*'
+      users:
+        - admin
