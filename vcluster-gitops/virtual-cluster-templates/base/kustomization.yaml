@@ -6,3 +6,4 @@ resources:
   - sleepy.yaml
   - argocd.yaml
   - preview.yaml
+  - edit-clusterrole-without-pvc.yaml
