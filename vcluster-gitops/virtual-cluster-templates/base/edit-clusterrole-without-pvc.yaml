@@ -419,6 +419,11 @@ spec:
             data:
               .dockerconfigjson: e30K
             type: kubernetes.io/dockerconfigjson
+        access:
+          rules:
+            - teams:
+                - api-framework
+              clusterRole: edit-without-pvc
       parameters:
         - variable: disableControlPlaneSleep
           label: Disable vCluster Control Plane Sleep
