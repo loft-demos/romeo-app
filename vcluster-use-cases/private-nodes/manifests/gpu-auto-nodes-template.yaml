@@ -1,0 +1,118 @@
+apiVersion: management.loft.sh/v1
+kind: VirtualClusterTemplate
+metadata:
+  name: gpu-auto-nodes
+  annotations:
+    vcluster.com/template-icon: gpu.svg
+spec:
+  displayName: GPU Auto Nodes vCluster Template
+  description: This template deploys a private node vCluster with an AWS EC2 auto
+    nodes provider that allows selecting a static number and type of GPU node.
+  owner:
+    user: kurtmadel
+  template:
+    metadata: {}
+    instanceTemplate:
+      metadata: {}
+    apps:
+      - name: nvidia-gpu-operator
+    objects: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: gpu-smoke
+        namespace: default
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: gpu-smoke
+        template:
+          metadata:
+            labels:
+              app: gpu-smoke
+          spec:
+            restartPolicy: Always
+            containers:
+              - name: cuda-smi
+                image: nvidia/cuda:12.4.1-base-ubuntu22.04
+                command: ["bash", "-lc"]
+                args:
+                  - |
+                    echo "GPU smoke test starting with model {{ .Values.llmModel }}..."
+                    nvidia-smi -L || true
+                    while true; do
+                      date
+                      nvidia-smi || true
+                      sleep 30
+                    done
+                resources:
+                  requests:
+                    cpu: "100m"
+                    memory: "128Mi"
+                    nvidia.com/gpu: "1"
+                  limits:
+                    cpu: "500m"
+                    memory: "256Mi"
+                    nvidia.com/gpu: "1"
+    pro:
+      enabled: true
+    helmRelease:
+      chart:
+        version: 0.30.4
+      values: |
+        privateNodes:
+          enabled: true
+          vpn:
+            enabled: true
+          autoNodes:
+            - provider: aws-ec2-node-provider
+              static:
+                - name: "{{ .Values.loft.virtualClusterName }}-gpu-node-pool"
+                  quantity: {{ .Values.gpuInstanceQuantity | int }}
+                  nodeTypeSelector:
+                    - property: instance-type
+                      operator: In
+                      values:
+                        - "{{ .Values.gpuInstanceType }}"
+        controlPlane:
+          backingStore:
+            etcd:
+              embedded:
+                enabled: true
+        networking:
+          podCIDR: 10.64.0.0/16
+          serviceCIDR: 10.128.0.0/16
+    accessPoint:
+      ingress: {}
+    spaceTemplate:
+      metadata: {}
+  parameters:
+    - variable: gpuInstanceType
+      label: GPU Instance Type
+      description: Please select GPU instance type
+      type: string
+      options:
+        - g4dn.xlarge
+        - g4dn.2xlarge
+      defaultValue: g4dn.xlarge
+    - variable: gpuInstanceQuantity
+      label: GPU Instance Quantity
+      type: string
+      options:
+        - '1'
+        - '2'
+        - '4'
+      defaultValue: '1'
+    - variable: llmModel
+      label: LLM Model
+      type: string
+      options:
+        - 'Qwen2.5-3B-Instruct'
+        - 'Mistral-7B-Instruct'
+      defaultValue: 'Qwen2.5-3B-Instruct'
+  access:
+    - verbs:
+        - get
+      users:
+        - '*'
