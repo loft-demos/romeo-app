@@ -25,7 +25,7 @@ spec:
     project:
       count/virtualclusterinstances.active: '20'
   allowedClusters:
-    - name: '*'
+    - name: loft-cluster
   allowedTemplates:
     - kind: VirtualClusterTemplate
       group: storage.loft.sh
