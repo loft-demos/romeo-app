@@ -1,0 +1,72 @@
+---
+apiVersion: management.loft.sh/v1
+kind: VirtualClusterTemplate
+metadata:
+  name: gpu-auto-nodes
+  labels:
+    patchType: non-versioned
+  annotations:
+    argocd.argoproj.io/sync-options: Validate=false
+spec:
+  displayName: GPU Auto Nodes vCluster Template
+  description: This template deploys a private node vCluster with an AWS EC2 auto nodes provider that allows selecting a static number and type of GPU node.
+  template:
+    metadata: {}
+    instanceTemplate:
+      metadata: {}
+    apps:
+      - name: nvidia-gpu-operator
+    pro:
+      enabled: true
+    helmRelease:
+      chart:
+        version: 0.30.4
+      values: |
+        privateNodes:
+          enabled: true
+          vpn:
+            enabled: true
+          autoNodes:
+            - provider: aws-ec2-node-provider
+              static:
+                - name: {{ .Values.loft.virtualClusterName }}-gpu-node-pool
+                  quantity: {{ .Values.gpuInstanceQuantity | int }}
+                  nodeTypeSelector:
+                    - property: instance-type
+                      operator: In
+                      values:
+                        - "{{ .Values.gpuInstanceType }}"
+        controlPlane:
+          backingStore:
+            etcd:
+              embedded:
+                enabled: true
+        networking:
+          podCIDR: 10.64.0.0/16
+          serviceCIDR: 10.128.0.0/16
+    accessPoint:
+      ingress: {}
+    spaceTemplate:
+      metadata: {}
+  parameters:
+    - variable: gpuInstanceType
+      label: GPU Instance Type
+      type: string
+      description: Please select GPU instance type
+      options:
+        - g4dn.xlarge
+        - g4dn.2xlarge
+      defaultValue: g4dn.xlarge
+    - variable: gpuInstanceQuantity
+      label: GPU Instance Quanity
+      type: number
+      options:
+        - '1'
+        - '2'
+        - '4'
+      defaultValue: '1'
+  access:
+    - verbs:
+        - get
+      users:
+        - '*'
