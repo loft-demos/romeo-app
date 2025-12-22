@@ -33,10 +33,7 @@ spec:
       isDefault: true
     - kind: VirtualClusterTemplate
       group: storage.loft.sh
-      name: vcluster-flux-template
-    - kind: VirtualClusterTemplate
-      group: storage.loft.sh
-      name: vcluster-pro-template
+      name: gpu-auto-nodes
   requireTemplate: {}
   members:
     - kind: Team
