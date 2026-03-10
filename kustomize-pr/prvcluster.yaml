@@ -1,0 +1,10 @@
+apiVersion: virtualcluster.demo.loft.sh/v1alpha1
+kind: PullRequestEnvironment
+metadata:
+  name: vcluster
+  namespace: p-api-framework
+spec:
+  project: api-framework
+  repo: REPO_NAME
+  # Supported k8sVersion values include: v1.30.2, v1.29.8, v1.28.11, v1.27.9, v1.26.15
+  k8sVersion: v1.29.8
