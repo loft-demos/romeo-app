@@ -14,8 +14,8 @@ spec:
                 appSecretName: loft-demo-org-cred
                 labels:
                   - 'deploy/argocd-vcluster-preview'
-                owner: {REPLACE_ORG_NAME}
-                repo: {REPLACE_REPO_NAME}
+                owner: loft-demos
+                repo: romeo-app
               requeueAfterSeconds: 30
           - clusters:
               selector:
@@ -26,7 +26,7 @@ spec:
                       - '{{number}}'
                 matchLabels:
                   prLabel: deploy-argocd-vcluster-preview
-                  repo: {REPLACE_REPO_NAME}
+                  repo: romeo-app
                   vcluster.loft.sh/ready: 'true'
   template:
     metadata:
@@ -46,13 +46,13 @@ spec:
         server: '{{server}}'
       info:
         - name: GitHub Repo
-          value: https://github.com/{REPLACE_ORG_NAME}/{{metadata.labels.repo}}/
+          value: https://github.com/loft-demos/{{metadata.labels.repo}}/
       project: loft-auth-core
       source:
         helm:
           parameters:
             - name: image.repository
-              value: ghcr.io/{REPLACE_ORG_NAME}/{{metadata.labels.repo}}
+              value: ghcr.io/loft-demos/{{metadata.labels.repo}}
             - name: image.tag
               value: '{{head_short_sha}}'
             - name: image.args.text
@@ -60,7 +60,7 @@ spec:
                 Hello from {{metadata.labels.vclusterName}} commit
                 {{head_short_sha}}
             - name: ingress.hosts[0].host
-              value: '{{metadata.labels.vclusterName}}.{REPLACE_BASE_DOMAIN}'
+              value: '{{metadata.labels.vclusterName}}.us.demo.dev'
             - name: ingress.hosts[0].paths[0].backend.service.name
               value: '{{metadata.labels.repo}}'
             - name: ingress.hosts[0].paths[0].backend.service.port.name
@@ -70,9 +70,9 @@ spec:
             - name: ingress.hosts[0].paths[0].pathType
               value: prefix
             - name: ingress.tls[0].hosts[0]
-              value: '{{metadata.labels.vclusterName}}.{REPLACE_BASE_DOMAIN}'
+              value: '{{metadata.labels.vclusterName}}.us.demo.dev'
         path: helm-chart/
-        repoURL: https://github.com/{REPLACE_ORG_NAME}/{{metadata.labels.repo}}.git
+        repoURL: https://github.com/loft-demos/{{metadata.labels.repo}}.git
         targetRevision: '{{head_sha}}'
       syncPolicy:
         automated:

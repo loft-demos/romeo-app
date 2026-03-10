@@ -32,7 +32,7 @@ spec:
       enabled: true
       ingressClassName: nginx
       hosts:
-        - host: headlamp-{REPLACE_VCLUSTER_NAME}.{REPLACE_BASE_DOMAIN}
+        - host: headlamp-romeo.us.demo.dev
           paths:
             - path: /
               type: ImplementationSpecific

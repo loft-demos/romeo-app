@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/{REPLACE_ORG_NAME}/{REPLACE_REPO_NAME}
+    repoURL: https://github.com/loft-demos/romeo-app
     targetRevision: main
     path: vcluster-gitops/virtual-cluster-templates/overlays/prod
   destination:
