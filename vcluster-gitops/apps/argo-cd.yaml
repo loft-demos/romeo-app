@@ -1,0 +1,95 @@
+kind: App
+apiVersion: management.loft.sh/v1
+metadata:
+  name: argocd-{REPLACE_VCLUSTER_NAME}
+spec:
+  displayName: Argo CD
+  description: Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes
+  recommendedApp:
+    - cluster
+  defaultNamespace: argocd
+  icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
+  config:
+    chart:
+      name: argo-cd
+      version: 7.3.6
+      repoURL: https://argoproj.github.io/argo-helm
+    values: '{{ .Values.appValues }}'
+  parameters:
+    - variable: appValues
+      label: Helm Values
+      description: The helm values to use to deploy this chart.
+      type: multiline
+      defaultValue: |-
+        server:
+          ingress:
+            enabled: true
+            hosts:
+            - my-domain.com
+  versions:
+    - version: 2.14.10
+      icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
+      config:
+        chart:
+          name: argo-cd
+          version: 7.8.26
+          repoURL: https://argoproj.github.io/argo-helm
+        values: '{{ .Values.appValues }}'
+      parameters:
+        - variable: appValues
+          label: Helm Values
+          description: The helm values to use to deploy this chart.
+          type: multiline
+          defaultValue: |-
+            server:
+              ingress:
+                enabled: true
+                hosts:
+                - my-domain.com
+      defaultNamespace: argocd
+      wait: true
+    - version: 2.14.1
+      icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
+      config:
+        chart:
+          name: argo-cd
+          version: 7.8.0
+          repoURL: https://argoproj.github.io/argo-helm
+        values: '{{ .Values.appValues }}'
+      parameters:
+        - variable: appValues
+          label: Helm Values
+          description: The helm values to use to deploy this chart.
+          type: multiline
+          defaultValue: |-
+            server:
+              ingress:
+                enabled: true
+                hosts:
+                - my-domain.com
+      defaultNamespace: argocd
+      wait: true
+    - icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
+      config:
+        chart:
+          name: argo-cd
+          version: 7.4.4
+          repoURL: https://argoproj.github.io/argo-helm
+        values: '{{ .Values.appValues }}'
+      parameters:
+        - variable: appValues
+          label: Helm Values
+          description: The helm values to use to deploy this chart.
+          type: multiline
+          defaultValue: |-
+            server:
+              ingress:
+                enabled: true
+                hosts:
+                - my-domain.com
+      version: 0.0.0
+  access:
+    - verbs:
+        - get
+      users:
+        - '*'
