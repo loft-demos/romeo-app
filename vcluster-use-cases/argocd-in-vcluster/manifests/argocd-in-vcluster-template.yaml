@@ -59,7 +59,7 @@ spec:
                 timezone: '{{ .Values.loft.clusterAnnotations.sleepTimeZone }}'
                 wakeup:
                   schedule: 11 7-17 * * 1-5
-            delete:
+            deletion:
               auto:
                 afterInactivity: 90h
                   
