@@ -40,7 +40,7 @@ spec:
           metadata:
             annotations:
               loft.sh/custom-links: >-
-                ArgoCD='https://argocd-{{ .Values.loft.virtualClusterNamespace }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}'
+                ArgoCD=https://argocd-{{ .Values.loft.virtualClusterNamespace }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
             labels:
               addons.vcluster.demo/argocd: '{{ .Values.installArgoCD }}'
               vcluster.demo/project: '{{ .Values.loft.project }}'

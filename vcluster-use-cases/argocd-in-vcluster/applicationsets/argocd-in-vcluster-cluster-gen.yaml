@@ -28,6 +28,9 @@ spec:
         helm:
           releaseName: argocd
           valuesObject:
+            configs:
+              params:
+                server.insecure: "true"
             server:
               ingress:
                 enabled: true
