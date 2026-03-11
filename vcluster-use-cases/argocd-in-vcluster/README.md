@@ -68,3 +68,30 @@ The key mechanism is the label handoff between vCluster Platform and Argo CD:
 4. Matching vClusters automatically receive their own Argo CD installation.
 
 This makes Argo CD installation an opt-in add-on controlled by the vCluster template parameter instead of a separate manual bootstrap step.
+
+## Argo CD Workload for the vCluster
+
+Once your vCluster, with Argo CD installed, is up and running you will be able to create an Argo CD `Applications` inside the vCluster, for example:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: guestbook
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/argoproj/argocd-example-apps
+    targetRevision: HEAD
+    path: guestbook
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: guestbook
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+```
