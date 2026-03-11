@@ -28,7 +28,11 @@ spec:
         helm:
           releaseName: argocd
           valuesObject:
+            global:
+              domain: '{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
             configs:
+              cm:
+                url: 'https://{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
               params:
                 server.insecure: "true"
             server:
@@ -38,7 +42,7 @@ spec:
                   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
                   nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
                 ingressClassName: "nginx"
-                hostname: argocd-{{ index .metadata.labels "vcluster.demo/namespace" }}-romeo.us.demo.dev
+                hostname: '{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
                 tls: true
               ingressGrpc:
                 enabled: false
@@ -47,3 +51,4 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+          - ServerSideApply=true
