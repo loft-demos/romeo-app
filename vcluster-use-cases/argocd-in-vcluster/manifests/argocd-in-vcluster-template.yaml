@@ -38,11 +38,11 @@ spec:
           metadata:
             annotations:
               loft.sh/custom-links: >-
-                ArgoCD=https://argocd-{{ .Values.loft.virtualClusterNamespace }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}
+                ArgoCD='https://argocd-{{ .Values.loft.virtualClusterNamespace }}-{{ .Values.loft.clusterAnnotations.domainPrefix }}.{{ .Values.loft.clusterAnnotations.domain }}'
             labels:
               addons.vcluster.demo/argocd: '{{ .Values.installArgoCD }}'
               vcluster.demo/project: '{{ .Values.loft.project }}'
-              vcluster.demo/namespace: {{ .Values.loft.virtualClusterNamespace }}
+              vcluster.demo/namespace: '{{ .Values.loft.virtualClusterNamespace }}'
               vcluster.demo/owner: '{{ or (and .Values.loft.user .Values.loft.user.name) (and .Values.loft.team .Values.loft.team.name) }}'
         apps:
           - name: helm-dashboard
