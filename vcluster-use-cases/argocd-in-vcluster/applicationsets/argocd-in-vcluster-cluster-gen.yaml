@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: argocd-in-vcluster
+  name: argocd-in-vcluster-appset
   namespace: argocd
 spec:
   syncPolicy:
@@ -20,7 +20,7 @@ spec:
       destination:
         namespace: argocd
         server: '{{.server}}'
-      project: 'loft-{{ index .metadata.labels "demos.loft.sh/project" }}'
+      project: 'default'
       source:
         chart: argo-cd
         repoURL: ghcr.io/argoproj/argo-helm
