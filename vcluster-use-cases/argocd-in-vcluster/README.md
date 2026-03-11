@@ -33,24 +33,24 @@ flowchart TD
 
 ## Manifest Breakdown
 
-[`manifests/argocd-in-vcluster-template.yaml`](/Users/kmadel/Library/Mobile%20Documents/com~apple~CloudDocs/projects/loft-demos/romeo-app/vcluster-use-cases/argocd-in-vcluster/manifests/argocd-in-vcluster-template.yaml) defines the `VirtualClusterTemplate`.
+[`manifests/argocd-in-vcluster-template.yaml`](./manifests/argocd-in-vcluster-template.yaml) defines the `VirtualClusterTemplate`.
 
 - `loft.sh/import-argocd: 'true'` enables Argo CD cluster import for vClusters created from this template.
 - The template adds instance labels including `addons.vcluster.demo/argocd`, `vcluster.demo/namespace`, `vcluster.demo/project`, and `vcluster.demo/owner`.
 - Those labels are propagated to the imported Argo CD cluster secret and become usable by the `ApplicationSet` cluster generator.
 - The template also enables ingress sync to the host, embedded etcd, embedded CoreDNS, and custom links for the Argo CD endpoint.
 
-[`manifests/argocd-in-vcluster-instance.yaml`](/Users/kmadel/Library/Mobile%20Documents/com~apple~CloudDocs/projects/loft-demos/romeo-app/vcluster-use-cases/argocd-in-vcluster/manifests/argocd-in-vcluster-instance.yaml) creates a `VirtualClusterInstance` from that template.
+[`manifests/argocd-in-vcluster-instance.yaml`](./manifests/argocd-in-vcluster-instance.yaml) creates a `VirtualClusterInstance` from that template.
 
 - It references template version `1.0.x`.
 - It sets `installArgoCD: true`.
 - That value drives the `addons.vcluster.demo/argocd` label rendered by the template, which is the selector used later by the `ApplicationSet`.
 
-[`apps/argocd-in-vcluster-manifests.yaml`](/Users/kmadel/Library/Mobile%20Documents/com~apple~CloudDocs/projects/loft-demos/romeo-app/vcluster-use-cases/argocd-in-vcluster/apps/argocd-in-vcluster-manifests.yaml) is the host Argo CD `Application` that syncs the template and instance manifests into the management cluster.
+[`apps/argocd-in-vcluster-manifests.yaml`](./apps/argocd-in-vcluster-manifests.yaml) is the host Argo CD `Application` that syncs the template and instance manifests into the management cluster.
 
-[`apps/argocd-in-vcluster-applicationsets.yaml`](/Users/kmadel/Library/Mobile%20Documents/com~apple~CloudDocs/projects/loft-demos/romeo-app/vcluster-use-cases/argocd-in-vcluster/apps/argocd-in-vcluster-applicationsets.yaml) is the host Argo CD `Application` that syncs the `ApplicationSet` definitions.
+[`apps/argocd-in-vcluster-applicationsets.yaml`](./apps/argocd-in-vcluster-applicationsets.yaml) is the host Argo CD `Application` that syncs the `ApplicationSet` definitions.
 
-[`applicationsets/argocd-in-vcluster-cluster-gen.yaml`](/Users/kmadel/Library/Mobile%20Documents/com~apple~CloudDocs/projects/loft-demos/romeo-app/vcluster-use-cases/argocd-in-vcluster/applicationsets/argocd-in-vcluster-cluster-gen.yaml) contains the logic that installs Argo CD inside the imported vCluster.
+[`applicationsets/argocd-in-vcluster-cluster-gen.yaml`](./applicationsets/argocd-in-vcluster-cluster-gen.yaml) contains the logic that installs Argo CD inside the imported vCluster.
 
 - It uses the Argo CD `clusters` generator.
 - It selects only imported clusters labeled `addons.vcluster.demo/argocd: "true"`.
