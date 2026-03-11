@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: argocd-in-vcluster-appset
+  name: argocd-in-vc-instance-appset
   namespace: argocd
 spec:
   syncPolicy:
