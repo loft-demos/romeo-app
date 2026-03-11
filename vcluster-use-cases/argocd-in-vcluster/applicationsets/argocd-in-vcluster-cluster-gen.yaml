@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: argocd-in-vcluster
+  namespace: argocd
+spec:
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            addons.vcluster.demo/argocd: "true"
+  template:
+    metadata:
+      name: argocd-{{.name}}
+    spec:
+      destination:
+        namespace: argocd
+        server: '{{.server}}'
+      project: 'loft-{{ index .metadata.labels "demos.loft.sh/project" }}'
+      source:
+        chart: argo-cd
+        repoURL: ghcr.io/argoproj/argo-helm
+        targetRevision: 9.4.10
+        helm:
+          releaseName: argocd
+          valuesObject:
+            server:
+              ingress:
+                enabled: true
+                annotations:
+                  nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+                  nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+                ingressClassName: "nginx"
+                hostname: argocd-{{metadata.labels.virtualClusterNamespace}}-romeo.us.demo.dev
+                tls: true
+              ingressGrpc:
+                enabled: false
+      syncPolicy:
+        automated:
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
