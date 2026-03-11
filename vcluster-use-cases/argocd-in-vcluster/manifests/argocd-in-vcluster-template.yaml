@@ -54,12 +54,14 @@ spec:
             version: 0.32.1
           values: |
             sleep:
-              afterInactivity: "{{ .Values.sleepAfter }}m"
-              timeZone: '{{ .Values.loft.clusterAnnotations.sleepTimeZone }}'
-              autoWakeup:
-                schedule: 11 7-17 * * 1-5
+              auto:
+                afterInactivity: "{{ .Values.sleepAfter }}m"
+                timezone: '{{ .Values.loft.clusterAnnotations.sleepTimeZone }}'
+                wakeup:
+                  schedule: 11 7-17 * * 1-5
             delete:
-              afterInactivity: 1800000
+              auto:
+                afterInactivity: 90h
                   
             sync:
               toHost:
