@@ -35,7 +35,7 @@ spec:
                   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
                   nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
                 ingressClassName: "nginx"
-                hostname: argocd-{{ index .metadata.labels "virtualClusterNamespace" }}-romeo.us.demo.dev
+                hostname: argocd-{{ index .metadata.labels "vcluster.demo/namespace" }}-romeo.us.demo.dev
                 tls: true
               ingressGrpc:
                 enabled: false
