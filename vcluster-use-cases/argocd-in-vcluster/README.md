@@ -1,6 +1,6 @@
 # Argo CD Inside vCluster with Virtual Cluster Templates
 
-This use case creates a vCluster from a `VirtualClusterTemplate`, imports that vCluster into the host Argo CD instance through the vCluster Platform Argo CD integration, and then uses an Argo CD `ApplicationSet` to install a dedicated Argo CD instance inside the vCluster.
+This use case creates a vCluster from a **vCluster Platform** `VirtualClusterTemplate`, imports that vCluster into the host Argo CD instance through the [vCluster Platform Argo CD integration](https://www.vcluster.com/docs/platform/integrations/argocd), and then uses an Argo CD `ApplicationSet` to install a dedicated Argo CD instance inside the vCluster.
 
 ## Overview
 

@@ -6,7 +6,7 @@ metadata:
   labels:
     demos.loft.sh: argocd-in-vcluster
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "4"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
