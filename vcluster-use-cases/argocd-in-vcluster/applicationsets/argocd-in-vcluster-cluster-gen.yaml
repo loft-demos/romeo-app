@@ -27,6 +27,8 @@ spec:
           targetRevision: 9.4.10
           helm:
             releaseName: argocd
+            valueFiles:
+              - $values/values.yaml
             parameters:
             - name: "global.domain"
               value: '{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
@@ -36,7 +38,7 @@ spec:
               value: '{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
         - repoURL: https://github.com/loft-demos/romeo-app.git
           targetRevision: main
-          ref: vcluster-use-cases/argocd-in-vcluster/helm-values/argocd/values.yaml
+          ref: vcluster-use-cases/argocd-in-vcluster/helm-values/argocd
       syncPolicy:
         automated:
           selfHeal: true
