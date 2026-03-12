@@ -21,31 +21,22 @@ spec:
         namespace: argocd
         server: '{{.server}}'
       project: 'argocd-in-vcluster'
-      source:
-        chart: argo-cd
-        repoURL: ghcr.io/argoproj/argo-helm
-        targetRevision: 9.4.10
-        helm:
-          releaseName: argocd
-          valuesObject:
-            global:
-              domain: '{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
-            configs:
-              cm:
-                url: 'https://{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
-              params:
-                server.insecure: "true"
-            server:
-              ingress:
-                enabled: true
-                annotations:
-                  nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-                  nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-                ingressClassName: "nginx"
-                hostname: '{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
-                tls: true
-              ingressGrpc:
-                enabled: false
+      sources:
+        - repoURL: ghcr.io/argoproj/argo-helm
+          chart: argo-cd
+          targetRevision: 9.4.10
+          helm:
+            releaseName: argocd
+            parameters:
+            - name: "global.domain"
+              value: '{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
+            - name: "configs.cm.url"
+              value: 'https://{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
+            - name: "server.ingress.hostname"
+              value: '{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
+        - repoURL: https://github.com/loft-demos/romeo-app.git
+          targetRevision: main
+          ref: vcluster-use-cases/argocd-in-vcluster/helm-values/argocd/values.yaml
       syncPolicy:
         automated:
           selfHeal: true
