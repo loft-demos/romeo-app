@@ -10,7 +10,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: argocd-in-vcluster
   source:
     repoURL: https://github.com/loft-demos/romeo-app
     targetRevision: HEAD

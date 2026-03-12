@@ -20,7 +20,7 @@ spec:
       destination:
         namespace: argocd
         server: '{{.server}}'
-      project: 'default'
+      project: 'argocd-in-vcluster'
       source:
         chart: argo-cd
         repoURL: ghcr.io/argoproj/argo-helm
