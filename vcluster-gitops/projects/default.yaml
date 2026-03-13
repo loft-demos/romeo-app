@@ -56,3 +56,5 @@ spec:
       host: https://argocd-romeo.us.demo.dev/
       assignedRoles:
         - role:admin
+  namespacePattern:
+    virtualCluster: '{{.Values.loft.project}}-v-{{.Values.loft.name}}'
