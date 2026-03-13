@@ -3,8 +3,6 @@ global:
 configs:
   cm:
     url: 'DYNAMIC FROM APPSET'
-  params:
-    server.insecure: "true"
 server:
   ingress:
     enabled: true

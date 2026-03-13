@@ -29,6 +29,7 @@ spec:
             releaseName: argocd
             valueFiles:
               - $values/vcluster-use-cases/argocd-in-vcluster/helm-values/argocd/values.yaml
+              - '$values/vcluster-use-cases/argocd-in-vcluster/helm-values/argocd/{{ index .metadata.labels "vcluster.demo/deployment-env" }}/values.yaml'
             parameters:
             - name: "global.domain"
               value: '{{ index .metadata.labels "vcluster.demo/argocd-hostname" }}'
